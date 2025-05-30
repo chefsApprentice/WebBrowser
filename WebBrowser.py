@@ -5,13 +5,14 @@ class URL:
     def __init__(self, url):
         self.scheme, url = url.split(":", 1);
         if self.scheme == "data":
-            self.path = url;
-            self.path = self.path.split(",", 1)[1];
+            self.path = url.split(",", 1)[1];
             return;
+
         __, url = url.split("//", 1);
         if self.scheme == "file":
             self.path = url;
             return;
+
         assert self.scheme in ["http","https"];
         if self.scheme == "http":
             self.port = 80;
