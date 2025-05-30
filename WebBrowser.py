@@ -3,7 +3,14 @@ import ssl
 
 class URL:
     def __init__(self, url):
-        self.scheme, url = url.split("://", 1);
+        self.scheme, url = url.split(":", 1);
+        if self.scheme == "data":
+            self.path = url;
+            return;
+        __, url = url.split("//", 1);
+        if self.scheme == "file":
+            self.path = url;
+            return;
         assert self.scheme in ["http","https"];
         if self.scheme == "http":
             self.port = 80;
@@ -63,10 +70,17 @@ def show (body):
     
             
 def load(url):
-    body = url.request();
+    if url.scheme == "file":
+        with open(url.path) as f:
+            body = f.read();
+    else:
+        body = url.request();
     show(body);
     
     
 if __name__ == "__main__":
     import sys;
-    load(URL(sys.argv[1]));
+    if len(sys.argv) <= 1:
+        load(URL("file:///home/robin/Documents/code/WebBrowser/readme.md"))
+    else:
+        load(URL(sys.argv[1]));
