@@ -1,5 +1,23 @@
 import socket
 import ssl
+from collections import OrderedDict;
+
+class socketCache:
+    def __init__(self, maxSize = 1):
+        self.maxSize=maxSize;
+        self.cache = OrderedDict();
+
+    def get(self, key):
+        return self.cache.get(key);
+
+    def add(self, key, value):
+        if key in self.cache:
+            self.cache.move_to_end(key);
+        self.cache[key] = value;
+        if len(self.cache) > self.maxSize:
+            key2, val = self.cache.popitem(last=False)
+            val.close();
+
 
 class URL:
     def __init__(self, url):
@@ -32,35 +50,42 @@ class URL:
         
         
     def request(self):
-        s = socket.socket(
-            family=socket.AF_INET,
-            type=socket.SOCK_STREAM,
-            proto=socket.IPPROTO_TCP,
-        );
-        s.connect((self.host, self.port));
-        if (self.scheme == "https"):
-            ctx = ssl.create_default_context();
-            s = ctx.wrap_socket(s, server_hostname=self.host);
+        s = connCache.get(self.path)
+        if (s == None):
+            s = socket.socket(
+                family=socket.AF_INET,
+                type=socket.SOCK_STREAM,
+                proto=socket.IPPROTO_TCP,
+            );
+            s.connect((self.host, self.port));
+            if (self.scheme == "https"):
+                ctx = ssl.create_default_context();
+                s = ctx.wrap_socket(s, server_hostname=self.host);
+
+        connCache.add(self.path, s);
         request = f"GET {self.path} HTTP/1.1\r\n"
         request += f"Host: {self.host}\r\n"
-        request += f"Connection: {"close"}\r\n"
+        request += f"Connection: {"keep-alive"}\r\n"
         request += f"User-Agent: {"Oh my days"}\r\n"
         request += "\r\n";
         s.send(request.encode("utf8"));
-        response = s.makefile("r", encoding="utf8", newline="\r\n");
-        statusLine = response.readline();
+        response = s.makefile("rb");
+        statusLine = response.readline().decode("utf-8").strip();
         version, status, explanation = statusLine.split(" ", 2);
+
         response_headers = {}
         while True:
-            line = response.readline();
-            if line == "\r\n": break;
+            line = response.readline().decode("utf-8")
+            if line in ('\r\n', '\n', ''): break;
             header, value = line.split(":", 1);
             response_headers[header.casefold()] = value.strip();
+
         assert "transfer-encoding" not in response_headers
         assert "content-encoding" not in response_headers
-        content = response.read();
-        s.close();
-        return content;
+
+        conLen = int(response_headers["content-length"])
+        content = response.read(conLen);
+        return content.decode("utf-8");
     
     
 def show(body):
@@ -105,7 +130,12 @@ def parseHtmlCharRef(cr):
     
 if __name__ == "__main__":
     import sys;
+    connCache = socketCache();
     if len(sys.argv) <= 1:
         load(URL("file:///home/robin/Documents/code/WebBrowser/readme.md"))
     else:
         load(URL(sys.argv[1]));
+
+    for value in connCache.cache.values():
+        value.close();
+
