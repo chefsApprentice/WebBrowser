@@ -1,4 +1,5 @@
 from collections import OrderedDict;
+import gzip
 import socket
 import ssl
 import time;
@@ -100,6 +101,7 @@ class URL:
         request += f"Connection: {"keep-alive"}\r\n"
         request += f"User-Agent: {"Oh my days"}\r\n"
         request += f"Cache-Control: {"no-store","max-age"}\r\n"
+        # request += f"Accept-Encoding: {"gzip"}\r\n"
         request += "\r\n";
         s.send(request.encode("utf8"));
         response = s.makefile("rb");
@@ -114,9 +116,6 @@ class URL:
             response_headers[header.casefold()] = value.strip();
             print(header.casefold(), response_headers[header.casefold()])
 
-        assert "transfer-encoding" not in response_headers
-        assert "content-encoding" not in response_headers
-
         if (int(status) in [301, 302, 303]):
             redirectUrl = response_headers["location"]
             if redirectUrl[0] == '/':
@@ -125,12 +124,20 @@ class URL:
             else:
                 return URL(redirectUrl).request()
 
-        conLen = int(response_headers["content-length"])
-        content = response.read(conLen);
+
+        if "content-length" in response_headers:
+            conLen = int(response_headers["content-length"])
+            content = response.read(conLen);
+            if "content-encoding" in response_headers:
+                content = gzip.decompress(content);
+        elif "transfer-encoding" in response_headers:
+            content = readChunked(s)
+            print("content", content)
+        
         content = content.decode("utf-8")
 
         # Should really only cache GET, 200, 301, and 404
-        if int(status) == 200:
+        if int(status) == 200 and "cache-control" in response_headers:
             for val in response_headers["cache-control"].split(","):
                 if "=" not in val and val[0:6] != "max-age":
                     break;
@@ -180,6 +187,28 @@ def parseHtmlCharRef(cr):
         return "<";
     elif cr == "gt":
         return ">";
+
+def readChunked(s):
+    content = b""
+    while True:
+        sizeChunk = b""
+        while b"\r\n" not in sizeChunk:
+            char = s.recv(1)
+            if not char: break;
+            sizeChunk += char;
+        print("sc", sizeChunk)
+        line, sizeChunk = sizeChunk.split(b"\r\n", 1)
+        chunkSize = int(line.strip(), 16) ;
+        print(chunkSize)
+        if chunkSize == 0:
+            break;
+
+        dataChunk = b"";
+        while len(dataChunk) < chunkSize + 2:
+            dataChunk += s.read(chunkSize+2 - len(dataChunk));
+        content += dataChunk;
+        return content;
+
     
 if __name__ == "__main__":
     import sys;
