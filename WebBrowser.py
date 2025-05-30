@@ -60,15 +60,23 @@ class URL:
         return content;
     
     
-def show (body):
+def show(body):
     in_tag = False;
-    for c in body:
+    i = 0;
+    while i < (len(body)):
+        c = body[i]
+        if c == "&":
+            cr = body[i+1:len(body)].split(";", 1)[0]
+            c = parseHtmlCharRef(cr);
+            i += len(cr) + 1;
         if c == "<":
             in_tag = True;
         elif c == ">":
             in_tag = False;
         elif not in_tag:
             print(c, end="");
+        
+        i+=1;
     
             
 def load(url):
@@ -81,6 +89,12 @@ def load(url):
         body = url.request();
     show(body);
     
+
+def parseHtmlCharRef(cr):
+    if cr == "lt":
+        return "<";
+    elif cr == "gt":
+        return ">";
     
 if __name__ == "__main__":
     import sys;
