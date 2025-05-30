@@ -79,9 +79,18 @@ class URL:
             if line in ('\r\n', '\n', ''): break;
             header, value = line.split(":", 1);
             response_headers[header.casefold()] = value.strip();
+            print(header.casefold(), response_headers[header.casefold()])
 
         assert "transfer-encoding" not in response_headers
         assert "content-encoding" not in response_headers
+
+        if (int(status) in [301, 302, 303]):
+            redirectUrl = response_headers["location"]
+            if redirectUrl[0] == '/':
+                print("path", self.host)
+                return URL(self.scheme + "://" + self.host + "/" + redirectUrl).request()
+            else:
+                return URL(redirectUrl).request()
 
         conLen = int(response_headers["content-length"])
         content = response.read(conLen);
