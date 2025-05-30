@@ -6,6 +6,7 @@ class URL:
         self.scheme, url = url.split(":", 1);
         if self.scheme == "data":
             self.path = url;
+            self.path = self.path.split(",", 1)[1];
             return;
         __, url = url.split("//", 1);
         if self.scheme == "file":
@@ -73,6 +74,8 @@ def load(url):
     if url.scheme == "file":
         with open(url.path) as f:
             body = f.read();
+    elif url.scheme == "data":
+        body = url.path;
     else:
         body = url.request();
     show(body);
