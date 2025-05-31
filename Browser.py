@@ -4,7 +4,7 @@ from SocketCache import socketCache
 from URL import URL, lex
 
 
-WIDTH, HEIGHT = 3400, 2600
+width, height = 3400, 2600
 HSTEP, VSTEP = 18, 30
 SCROLL_STEP = 100
 
@@ -16,20 +16,22 @@ class Browser:
         self.htmlCache = HtmlTimeCache();
         self.scroll = 0;
         self.window = tk.Tk()
+        self.window.resizable(True, True)
         self.window.bind("<Down>", self.scrolldown)
         self.window.bind("<Up>", self.scrollup)
         self.window.bind("<MouseWheel>", self.touchpadScroll)
+        self.window.bind("<Configure>", self.resize)
         self.canvas = tk.Canvas(
             self.window, 
-            width=WIDTH,
-            height=HEIGHT
+            width=width,
+            height=height
         )
-        self.canvas.pack()
+        self.canvas.pack(fill="both",expand=True)
 
     def draw(self):
         self.canvas.delete("all")
         for x, y, c in self.display_list:
-            if y > self.scroll + HEIGHT: continue
+            if y > self.scroll + height: continue
             if y + VSTEP < self.scroll: continue
             self.canvas.create_text(x, y-self.scroll, text=c)
  
@@ -46,9 +48,9 @@ class Browser:
         else:
             body = url.request();
 
-        text = lex(body);
+        self.text = lex(body);
     
-        self.display_list = layout(text)
+        self.display_list = layout(self.text)
         self.draw()
 
 
@@ -64,20 +66,27 @@ class Browser:
     def touchpadScroll(self, e):
         print(e)
 
+    def resize(self ,e):
+        global width, height
+        width = e.width
+        height = e.height
+        self.canvas.config(width=width, height=height)
+        self.display_list = layout(self.text);
+        self.draw();
+
 
 def layout(text):
     display_list = []
     cursor_x, cursor_y = HSTEP, VSTEP
     for c in text:
-        display_list.append((cursor_x, cursor_y, c))
         cursor_x += HSTEP
-
-        if c == "\n":
-            cursor_y += 2* HSTEP
-            cursor_x = HSTEP
-        elif cursor_x >= WIDTH - HSTEP:
+        if cursor_x > width - HSTEP:
             cursor_y += VSTEP
             cursor_x = HSTEP
+        elif c == "\n":
+            cursor_y += VSTEP
+            cursor_x = HSTEP
+        display_list.append((cursor_x, cursor_y, c))
     return display_list
 
 
