@@ -34,6 +34,21 @@ class Browser:
             if y > self.scroll + height: continue
             if y + VSTEP < self.scroll: continue
             self.canvas.create_text(x, y-self.scroll, text=c)
+        
+        # Scrollbar
+        
+        totalHeight = self.display_list[-1][1];
+        if totalHeight < height: return
+        scrollPerc = self.scroll / totalHeight * height
+        minScroll = scrollPerc
+        maxScroll = scrollPerc+40
+        if (scrollPerc == 0):
+            minScroll = 0
+            maxScroll = scrollPerc+40
+        elif (scrollPerc+40 >= height):
+            minScroll = height-40
+            maxScroll = height
+        self.canvas.create_rectangle(width-20, minScroll, width, maxScroll , fill="blue")
  
     def load(self, url):
         if url.scheme == "file":
@@ -55,8 +70,9 @@ class Browser:
 
 
     def scrolldown(self, e):
-        self.scroll += SCROLL_STEP
-        self.draw()
+        if (self.scroll+SCROLL_STEP < self.display_list[-1][1]):
+            self.scroll += SCROLL_STEP
+            self.draw()
 
     def scrollup(self, e):
         if (self.scroll-SCROLL_STEP >= 0):
