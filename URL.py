@@ -1,59 +1,20 @@
-from collections import OrderedDict;
 import gzip
 import socket
 import ssl
-import time;
-import heapq
-
-class socketCache:
-    def __init__(self, maxSize = 1):
-        self.maxSize=maxSize;
-        self.cache = OrderedDict();
-
-    def get(self, key):
-        return self.cache.get(key);
-
-    def add(self, key, value):
-        if key in self.cache:
-            self.cache.move_to_end(key);
-        self.cache[key] = value;
-        if len(self.cache) > self.maxSize:
-            key2, val = self.cache.popitem(last=False)
-            val.close();
-
-class HtmlTimeCache:
-    def __init__(self):
-        self.cache = {}
-        self.expiry_queue = []
-
-    def set(self, key, value, ttl):
-        expiry = time.time() + ttl
-        self.cache[key] = (value, expiry)
-        heapq.heappush(self.expiry_queue, (expiry, key))
-
-    def get(self, key):
-        self.evict_expired()
-        if key in self.cache:
-            return self.cache[key][0]
-        return None
-
-    def evict_expired(self):
-        now = time.time()
-        while self.expiry_queue and self.expiry_queue[0][0] <= now:
-            expiry, key = heapq.heappop(self.expiry_queue)
-            if key in self.cache and self.cache[key][1] <= now:
-                del self.cache[key]
-
+from SocketCache import socketCache
+from HtmlTimeCache import HtmlTimeCache
 
 
 class URL:
-    def __init__(self, url):
+    def __init__(self, url, htmlCache, connCache):
+        self.htmlCache= htmlCache;
+        self.connCache = connCache
         self.url = url;
         self.scheme, url = url.split(":", 1);
         if self.scheme == "data":
             self.path = url.split(",", 1)[1];
             return;
-        elif self.scheme == "view-source":
+        elif self.scheme in ["view-source","about"]:
             self.path = url;
             return;
 
@@ -78,12 +39,12 @@ class URL:
         
         
     def request(self):
-        content = htmlCache.get(self.url);
+        content = self.htmlCache.get(self.url);
         if content != None:
             print("hi");
             return content;
 
-        s = connCache.get(self.url)
+        s = self.connCache.get(self.url)
         if (s == None):
             s = socket.socket(
                 family=socket.AF_INET,
@@ -95,7 +56,7 @@ class URL:
                 ctx = ssl.create_default_context();
                 s = ctx.wrap_socket(s, server_hostname=self.host);
 
-        connCache.add(self.url, s);
+        self.connCache.add(self.url, s);
         request = f"GET {self.path} HTTP/1.1\r\n"
         request += f"Host: {self.host}\r\n"
         request += f"Connection: {"keep-alive"}\r\n"
@@ -143,14 +104,15 @@ class URL:
                     break;
                 else:
                     maxAge = int(val.split("=",1)[1]);
-                    htmlCache.set(self.url, content, maxAge);
+                    self.htmlCache.set(self.url, content, maxAge);
 
         return content;
     
     
-def show(body):
+def lex(body):
     in_tag = False;
     i = 0;
+    text = ""
     while i < (len(body)):
         c = body[i]
         if c == "&":
@@ -161,27 +123,13 @@ def show(body):
             in_tag = True;
         elif c == ">":
             in_tag = False;
-        elif not in_tag:
-            print(c, end="");
+        elif not in_tag and c != None:
+            text += c
         
         i+=1;
+    return text;
     
             
-def load(url):
-    if url.scheme == "file":
-        with open(url.path) as f:
-            body = f.read();
-    elif url.scheme == "data":
-        body = url.path;
-    elif url.scheme == "view-source":
-        body = URL(url.path).request();
-        print(body);
-        return;
-    else:
-        body = url.request();
-    show(body);
-    
-
 def parseHtmlCharRef(cr):
     if cr == "lt":
         return "<";
@@ -210,15 +158,15 @@ def readChunked(s):
         return content;
 
     
-if __name__ == "__main__":
-    import sys;
-    connCache = socketCache();
-    htmlCache = HtmlTimeCache();
-    if len(sys.argv) <= 1:
-        load(URL("file:///home/robin/Documents/code/WebBrowser/readme.md"))
-    else:
-        load(URL(sys.argv[1]));
+# if __name__ == "__main__":
+#     import sys;
+#     connCache = socketCache();
+#     htmlCache = HtmlTimeCache();
+#     if len(sys.argv) <= 1:
+#         load(URL("file:///home/robin/Documents/code/WebBrowser/readme.md"))
+#     connCache = socketCache();
+#     htmlCache = HtmlTimeCache();    load(URL(sys.argv[1]));
 
-    for value in connCache.cache.values():
-        value.close();
+#     for value in connCache.cache.values():
+#         value.close();
 
