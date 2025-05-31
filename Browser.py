@@ -60,6 +60,8 @@ class Browser:
             body = URL(url.path).request();
             print(body);
             return;
+        elif url.scheme == "about":
+            if url.path == "blank": body = " "
         else:
             body = url.request();
 
@@ -113,5 +115,9 @@ if __name__ == "__main__":
     if len(sys.argv) <= 1:
         browser.load(URL("file:///home/robin/Documents/code/WebBrowser/readme.md", browser.htmlCache, browser.connCache))
     else:
-        browser.load(URL(sys.argv[1], browser.htmlCache, browser.connCache));
+        try:
+            browser.load(URL(sys.argv[1], browser.htmlCache, browser.connCache));
+        except:
+            browser.load(URL("about:blank", browser.htmlCache, browser.connCache));
+
     tk.mainloop()

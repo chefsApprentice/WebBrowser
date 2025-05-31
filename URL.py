@@ -14,7 +14,7 @@ class URL:
         if self.scheme == "data":
             self.path = url.split(",", 1)[1];
             return;
-        elif self.scheme == "view-source":
+        elif self.scheme in ["view-source","about"]:
             self.path = url;
             return;
 
