@@ -2,6 +2,7 @@ import tkinter as tk
 from HtmlTimeCache import HtmlTimeCache
 from SocketCache import socketCache
 from URL import URL, lex
+from Layout import Layout
 
 
 width, height = 3400, 2600
@@ -30,10 +31,10 @@ class Browser:
 
     def draw(self):
         self.canvas.delete("all")
-        for x, y, c in self.display_list:
+        for x, y, c, f in self.display_list:
             if y > self.scroll + height: continue
             if y + VSTEP < self.scroll: continue
-            self.canvas.create_text(x, y-self.scroll, text=c)
+            self.canvas.create_text(x, y-self.scroll, text=c, anchor="nw", font=f)
         
         # Scrollbar
         
@@ -65,9 +66,8 @@ class Browser:
         else:
             body = url.request();
 
-        self.text = lex(body);
-    
-        self.display_list = layout(self.text)
+        self.tokens = lex(body);
+        self.display_list = Layout(self.tokens, width).display_list
         self.draw()
 
 
@@ -89,23 +89,11 @@ class Browser:
         width = e.width
         height = e.height
         self.canvas.config(width=width, height=height)
-        self.display_list = layout(self.text);
+        self.display_list = Layout(self.tokens, width).display_list
         self.draw();
 
 
-def layout(text):
-    display_list = []
-    cursor_x, cursor_y = HSTEP, VSTEP
-    for c in text:
-        cursor_x += HSTEP
-        if cursor_x > width - HSTEP:
-            cursor_y += VSTEP
-            cursor_x = HSTEP
-        elif c == "\n":
-            cursor_y += VSTEP
-            cursor_x = HSTEP
-        display_list.append((cursor_x, cursor_y, c))
-    return display_list
+
 
 
 
