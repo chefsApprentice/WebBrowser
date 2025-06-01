@@ -50,12 +50,18 @@ class Layout:
         elif tok.tag == "/h1" and self.centered:
             self.flush()
             self.centered = False;
-            
+
                 
     def word(self, word):
         font = get_font(self.size, self.weight, self.style)
         w=font.measure(word);
         if self.cursor_x + w > self.width - HSTEP or word == "\n":
+            print("word", word)
+            if "\N{soft hyphen}" in word:
+                word1, word = word.split("\N{soft hyphen}", 1)
+                word1 += "-"
+                print("w1", word1, "w2", word)
+                self.line.append((self.cursor_x, word1, font))
             self.flush()
             self.cursor_x = HSTEP
         self.line.append((self.cursor_x, word, font))
