@@ -7,6 +7,7 @@ FONTS = {}
 
 class Layout:
     def __init__(self, tokens, width):
+        self.centered = False
         self.width = width
         self.line = []
         self.display_list = []
@@ -44,14 +45,17 @@ class Layout:
         elif tok.tag == "/p":
             self.flush()
             self.cursor_y += VSTEP;
+        elif tok.tag == "h1 class=\"title\"":
+            self.centered = True;
+        elif tok.tag == "/h1" and self.centered:
+            self.flush()
+            self.centered = False;
+            
                 
     def word(self, word):
         font = get_font(self.size, self.weight, self.style)
         w=font.measure(word);
-        if self.cursor_x + w > self.width - HSTEP:
-            self.flush();
-            self.cursor_x = HSTEP
-        elif word == "\n":
+        if self.cursor_x + w > self.width - HSTEP or word == "\n":
             self.flush()
             self.cursor_x = HSTEP
         self.line.append((self.cursor_x, word, font))
@@ -63,15 +67,17 @@ class Layout:
         metrics = [font.metrics() for x, word, font in self.line]
         max_ascent = max([metric["ascent"] for metric in metrics])
         baseline = self.cursor_y + 1 * max_ascent
+        if self.centered: baseline_x = (self.width / 2) - ((self.cursor_x - HSTEP) / 2)
         # Add all words to display list
         for x, word, font in self.line:
             y = baseline - font.metrics("ascent")
+            if self.centered: x += baseline_x
             self.display_list.append((x,y,word,font));
         # Update cursor_x, y fields
         max_descent = max([metric["descent"] for metric in metrics])
         self.cursor_y = baseline + 1 * max_descent
-        # Flush
         self.cursor_x = HSTEP
+        # Flush
         self.line=[]
 
 # Gets a font or creates one, used for cacheing and optimisation
