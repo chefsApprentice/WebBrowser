@@ -3,6 +3,7 @@ import socket
 import ssl
 from SocketCache import socketCache
 from HtmlTimeCache import HtmlTimeCache
+from Tokens import Text, Tag
 
 
 class URL:
@@ -110,9 +111,10 @@ class URL:
     
     
 def lex(body):
-    in_tag = False;
+    out = []
     i = 0;
-    text = ""
+    buffer = ""
+    in_tag = False;
     while i < (len(body)):
         c = body[i]
         if c == "&":
@@ -121,13 +123,18 @@ def lex(body):
             i += len(cr) + 1;
         if c == "<":
             in_tag = True;
+            if buffer: out.append(Text(buffer))
+            buffer = ""
         elif c == ">":
             in_tag = False;
-        elif not in_tag and c != None:
-            text += c
-        
+            out.append(Tag(buffer))
+            buffer = ""
+        elif c != None:
+            buffer += c    
         i+=1;
-    return text;
+    if not in_tag and buffer:
+        out.append(Text(buffer))
+    return out;
     
             
 def parseHtmlCharRef(cr):
