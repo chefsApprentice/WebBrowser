@@ -79,6 +79,7 @@ class HTMLParser:
             parent.children.append(node)
         else:
             parent = self.unfinished[-1] if self.unfinished else None
+            if tag == "p" and parent.tag == "p": self.addTag("/p")
             node = Element(tag,attributes, parent)
             self.unfinished.append(node)
     
