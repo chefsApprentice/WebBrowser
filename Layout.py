@@ -1,12 +1,15 @@
 import re
 import tkinter.font
-from Tokens import Text, Tag
+from Tokens import Text, Element
 
 HSTEP, VSTEP = 18, 30
 FONTS = {}
 
+# Handles the positioning and styling of text given a html tree.
+# Caches font for massive performance benefit.
 class Layout:
-    def __init__(self, tokens, width):
+    # Sets the default styling variables and creates a display list of text.
+    def __init__(self, tree, width, viewSource=False):
         self.centered = False
         self.width = width
         self.line = []
@@ -16,57 +19,80 @@ class Layout:
         self.weight = "normal"
         self.style = "roman"
         self.size=12
-        for tok in tokens:
-            self.token(tok);
+        self.viewSource = viewSource
+        if viewSource:
+            self.weight = "bold"
+            self.viewSourceRecurse(tree)
+        else:
+            self.recurse(tree)
         self.flush()
 
-    def token(self, tok):
-        if isinstance(tok, Text):
-            for word in re.findall(r'[^\s\n]+|\n', tok.text):
+    # Goes through tokens and makes appropriate changes to display list / styling.
+    def recurse(self, tree):
+        if isinstance(tree, Text):
+            for word in re.findall(r'[^\s\n]+|\n', tree.text):
                 self.word(word)
-        elif tok.tag == "i":
-            self.style="italic"
-        elif tok.tag == "/i":
-            self.style="roman"
-        elif tok.tag == "b":
-            self.weight = "bold"
-        elif tok.tag == "/b":
+        else:
+            self.openTag(tree.tag)
+            for child in tree.children:
+                self.recurse(child)
+            self.closeTag(tree.tag)
+    
+    def viewSourceRecurse(self, tree):
+        if isinstance(tree, Text):
             self.weight = "normal"
-        elif tok.tag == "small":
-            self.size -= 2
-        elif tok.tag == "/small":
-            self.size += 2
-        elif tok.tag == "big":
-            self.size += 4
-        elif tok.tag == "/big":
-            self.size -= 4 
-        elif tok.tag == "br":
+            for word in re.findall(r'[^\s\n]+|\n', tree.text):
+                self.word(word)
+            self.weight = "bold"
+        else:
             self.flush()
-        elif tok.tag == "/p":
+            self.word("<"+tree.tag+">")
             self.flush()
-            self.cursor_y += VSTEP;
-        elif tok.tag == "h1 class=\"title\"":
-            self.centered = True;
-        elif tok.tag == "/h1" and self.centered:
+            for child in tree.children:
+                self.viewSourceRecurse(child)
             self.flush()
-            self.centered = False;
+            self.word("</"+tree.tag+">")
+
+    # Looks at content inside Open tag '<',and changes style accordingly based on element.
+    def openTag(self, tag):
+        if tag == "i": self.style = "italic"
+        elif tag == "b": self.weight = "bold"
+        elif tag == "small": self.size -= 2;
+        elif tag == "big": self.size += 4
+        elif tag == "br": self.flush();
+        elif tag == "h1 class=\"title\"": self.centered = True;
+    
+
+    # Looks at content inside Close tag '>',and changes style to default.
+    def closeTag(self, tag):        
+        if tag == "i": self.style = "roman"
+        elif tag == "b": self.weight = "normal"
+        elif tag == "small": self.size += 2;
+        elif tag == "big": self.size -= 4;
+        elif tag == "p": 
+            self.flush();   
+            self.cursor_y += VSTEP
+        elif tag == "h1" and self.centered:
+            self.flush()
+            self.centered = False
 
                 
+    # Takes a word and checks wether it fits on the current line. Adds word to current line at proper position.
     def word(self, word):
-        font = get_font(self.size, self.weight, self.style)
+        font = getFont(self.size, self.weight, self.style)
         w=font.measure(word);
         if self.cursor_x + w > self.width - HSTEP or word == "\n":
-            print("word", word)
             if "\N{soft hyphen}" in word:
                 word1, word = word.split("\N{soft hyphen}", 1)
                 word1 += "-"
-                print("w1", word1, "w2", word)
                 self.line.append((self.cursor_x, word1, font))
             self.flush()
             self.cursor_x = HSTEP
         self.line.append((self.cursor_x, word, font))
         self.cursor_x += w + font.measure(" ")
-        
+    
+
+    # Goes through the current line that and alligns the text to all have the same baseline, adds line to display list.
     def flush(self):
         # Align / find baseline
         if not self.line: return;
@@ -87,7 +113,7 @@ class Layout:
         self.line=[]
 
 # Gets a font or creates one, used for cacheing and optimisation
-def get_font(size, weight, style):
+def getFont(size, weight, style):
     key = (size, weight, style)
     if key not in FONTS:
         font = tkinter.font.Font(size=size, weight=weight,

@@ -1,0 +1,64 @@
+tag html
+tag head
+tag script
+text 
+            x = 5;
+            if (x 
+text  4) {alert("woah")}
+        
+tag /script
+tag /head
+tag body
+tag div
+text 
+            div 1
+        
+tag /div
+tag link
+tag div
+text 
+            div 2
+        
+text2 
+            div 2
+        
+tag /div
+tag /body
+tag /html
+tag html
+tag head
+tag script
+taged script
+text 
+            x = 5;
+            if (x 
+text2 
+            x = 5;
+            if (x 
+text  4) {alert("woah")}
+        
+text2  4) {alert("woah")}
+        
+tag /script
+untaged
+tag /head
+tag body
+tag div
+text 
+            div 1
+        
+text2 
+            div 1
+        
+tag /div
+tag link
+tag div
+text 
+            div 2
+        
+text2 
+            div 2
+        
+tag /div
+tag /body
+tag /html
