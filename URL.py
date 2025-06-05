@@ -3,10 +3,11 @@ import socket
 import ssl
 from SocketCache import socketCache
 from HtmlTimeCache import HtmlTimeCache
-from Tokens import Text, Tag
 
 
+# Handles parsing of the URL and handling the TCP request to fetch the data.
 class URL:
+    # Decomposes the url into scheme, host and path depending on scheme.
     def __init__(self, url, htmlCache, connCache):
         self.htmlCache= htmlCache;
         self.connCache = connCache
@@ -38,7 +39,10 @@ class URL:
             self.port = int(self.port);
         self.path = "/" + url;
         
-        
+    
+    # Handles the request using tcp socket for http and https.
+    # Decodes response headers, handles decompression and redirects.
+    # Returns the content
     def request(self):
         content = self.htmlCache.get(self.url);
         if content != None:
@@ -109,40 +113,8 @@ class URL:
 
         return content;
     
-    
-def lex(body):
-    out = []
-    i = 0;
-    buffer = ""
-    in_tag = False;
-    while i < (len(body)):
-        c = body[i]
-        if c == "&":
-            cr = body[i+1:len(body)].split(";", 1)[0]
-            c = parseHtmlCharRef(cr);
-            i += len(cr) + 1;
-        if c == "<":
-            in_tag = True;
-            if buffer: out.append(Text(buffer))
-            buffer = ""
-        elif c == ">":
-            in_tag = False;
-            out.append(Tag(buffer))
-            buffer = ""
-        elif c != None:
-            buffer += c    
-        i+=1;
-    if not in_tag and buffer:
-        out.append(Text(buffer))
-    return out;
-    
-            
-def parseHtmlCharRef(cr):
-    if cr == "lt":
-        return "<";
-    elif cr == "gt":
-        return ">";
 
+# Handles reading chunked responses, adn returns the uncompressed full data.
 def readChunked(s):
     content = b""
     while True:
