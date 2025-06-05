@@ -8,6 +8,7 @@ class HTMLParser:
     def __init__(self, body):
         self.body = body
         self.unfinished = []
+        self.withinScript = False
     
 
     # Tags found in the head of html 
@@ -56,6 +57,9 @@ class HTMLParser:
     # Creates text node
     def addText(self, text):
         if text.isspace(): return
+        print("text", text)
+        if self.withinScript: return;
+        print("text2", text)
         self.implicitTags(None)
         parent = self.unfinished[-1]
         node = Text(text, parent)
@@ -66,18 +70,23 @@ class HTMLParser:
     # Close tag adds to end of list with previous as child.
     def addTag(self, tag):
         tag, attributes = self.getAttributes(tag);
+        print("tag", tag)
         if tag.startswith("!"): return
-        self.implicitTags(tag)
+        # self.implicitTags(tag)
         if tag.startswith("/"): 
+            if tag == "/script": self.withinScript = False
             if len(self.unfinished) == 1: return
             node = self.unfinished.pop()
             parent = self.unfinished[-1]
             parent.children.append(node)
         elif tag in self.SELF_CLOSING_TAGS:
+            self.withinScript = False
             parent = self.unfinished[-1]
             node = Element(tag,attributes, parent)
             parent.children.append(node)
         else:
+            if tag == "script": self.withinScript = True
+            if self.withinScript: return;
             parent = self.unfinished[-1] if self.unfinished else None
             if tag == "p" and parent.tag == "p": self.addTag("/p")
             node = Element(tag,attributes, parent)
