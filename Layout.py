@@ -9,7 +9,7 @@ FONTS = {}
 # Caches font for massive performance benefit.
 class Layout:
     # Sets the default styling variables and creates a display list of text.
-    def __init__(self, tree, width):
+    def __init__(self, tree, width, viewSource=False):
         self.centered = False
         self.width = width
         self.line = []
@@ -19,7 +19,12 @@ class Layout:
         self.weight = "normal"
         self.style = "roman"
         self.size=12
-        self.recurse(tree)
+        self.viewSource = viewSource
+        if viewSource:
+            self.weight = "bold"
+            self.viewSourceRecurse(tree)
+        else:
+            self.recurse(tree)
         self.flush()
 
     # Goes through tokens and makes appropriate changes to display list / styling.
@@ -33,6 +38,20 @@ class Layout:
                 self.recurse(child)
             self.closeTag(tree.tag)
     
+    def viewSourceRecurse(self, tree):
+        if isinstance(tree, Text):
+            self.weight = "normal"
+            for word in re.findall(r'[^\s\n]+|\n', tree.text):
+                self.word(word)
+            self.weight = "bold"
+        else:
+            self.flush()
+            self.word("<"+tree.tag+">")
+            self.flush()
+            for child in tree.children:
+                self.viewSourceRecurse(child)
+            self.flush()
+            self.word("</"+tree.tag+">")
 
     # Looks at content inside Open tag '<',and changes style accordingly based on element.
     def openTag(self, tag):

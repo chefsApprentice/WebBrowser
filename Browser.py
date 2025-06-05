@@ -4,6 +4,7 @@ from SocketCache import socketCache
 from URL import URL
 from HTMLParser import HTMLParser, printTree
 from Layout import Layout
+from Tokens import Text
 
 
 width, height = 3400, 2600
@@ -18,6 +19,7 @@ class Browser:
     def __init__(self):
         self.connCache = socketCache();
         self.htmlCache = HtmlTimeCache();
+        self.viewSource = False;
         self.scroll = 0;
         self.window = tk.Tk()
         self.window.resizable(True, True)
@@ -64,16 +66,15 @@ class Browser:
         elif url.scheme == "data":
             body = url.path;
         elif url.scheme == "view-source":
-            body = URL(url.path).request();
-            print(body);
-            return;
+            body = URL(url.path, self.htmlCache, self.connCache).request()
+            self.viewSource=True;
         elif url.scheme == "about":
             if url.path == "blank": body = " "
         else:
             body = url.request();
 
         self.nodes = HTMLParser(body).parse();
-        self.display_list = Layout(self.nodes, width).display_list
+        self.display_list = Layout(self.nodes, width, self.viewSource).display_list
         self.draw()
 
 
@@ -95,7 +96,7 @@ class Browser:
         width = e.width
         height = e.height
         self.canvas.config(width=width, height=height)
-        self.display_list = Layout(self.nodes, width).display_list
+        self.display_list = Layout(self.nodes, width, self.viewSource).display_list
         self.draw();
 
 
