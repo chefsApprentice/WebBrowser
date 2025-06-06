@@ -1,31 +1,98 @@
 import re
 import tkinter.font
 from Tokens import Text, Element
+from DrawText import DrawText
+from DrawRect import DrawRect
+
 
 HSTEP, VSTEP = 18, 30
 FONTS = {}
 
+BLOCK_ELEMENTS = [
+    "html", "body", "article", "section", "nav", "aside",
+    "h1", "h2", "h3", "h4", "h5", "h6", "hgroup", "header",
+    "footer", "address", "p", "hr", "pre", "blockquote",
+    "ol", "ul", "menu", "li", "dl", "dt", "dd", "figure",
+    "figcaption", "main", "div", "table", "form", "fieldset",
+    "legend", "details", "summary"
+]
+
 # Handles the positioning and styling of text given a html tree.
 # Caches font for massive performance benefit.
-class Layout:
+class BlockLayout:
     # Sets the default styling variables and creates a display list of text.
-    def __init__(self, tree, width, viewSource=False):
-        self.centered = False
-        self.width = width
-        self.line = []
-        self.display_list = []
-        self.cursor_x = HSTEP
-        self.cursor_y = VSTEP
-        self.weight = "normal"
-        self.style = "roman"
-        self.size=12
+    def __init__(self, node, parent, previous, viewSource=False):
+        self.node = node
+        self.parent = parent
+        self.previous = previous
+        self.children = []
         self.viewSource = viewSource
-        if viewSource:
-            self.weight = "bold"
-            self.viewSourceRecurse(tree)
+        self.x = None
+        self.y = None
+        self.width = None
+        self.height = None
+        self.displayList = []
+
+    def layout(self):
+        self.x = self.parent.x
+        self.width = self.parent.width
+        if self.previous:
+            self.y = self.previous.y + self.previous.height
         else:
-            self.recurse(tree)
-        self.flush()
+            self.y = self.parent.y
+
+        mode = self.layoutMode()
+        if mode == "block":
+            previous = None
+            for child in self.node.children:
+                nextChild = BlockLayout(child, self, previous)
+                self.children.append(nextChild)
+                previous = nextChild
+        else:
+            self.cursor_x = 0
+            self.cursor_y = 0
+            self.centered = False
+            self.weight = "normal"
+            self.style = "roman"
+            self.size=12
+            self.line = []
+            if self.viewSource:
+                self.weight = "bold"
+                self.viewSourceRecurse(self.node)
+            else:
+                self.recurse(self.node)
+            self.flush()
+
+        for child in self.children:
+            child.layout()
+
+        if mode =="block":
+            self.height = sum([child.height for child in self.children])
+        else: 
+            self.height = self.cursor_y
+
+
+    def layoutMode(self):
+        if isinstance(self.node, Text):
+            return "inline"
+        elif any([isinstance(child, Element) and \
+                  child.tag in BLOCK_ELEMENTS
+                  for child in self.node.children]):
+            return "block"
+        elif self.node.children:
+            return "inline"
+        else:
+            return "block"
+
+    
+    # Node children = html tree, creates layout tree in self.children``
+    # def layoutIntermediate(self):
+    #     previous = None;
+    #     for child in self.node.chidlren:
+    #         nextBlock = BlockLayout(child, self, previous)
+    #         self.children.append(nextBlock)
+    #         previous = nextBlock
+
 
     # Goes through tokens and makes appropriate changes to display list / styling.
     def recurse(self, tree):
@@ -81,7 +148,7 @@ class Layout:
     def word(self, word):
         font = getFont(self.size, self.weight, self.style)
         w=font.measure(word);
-        if self.cursor_x + w > self.width - HSTEP or word == "\n":
+        if self.cursor_x + w > self.width or word == "\n":
             if "\N{soft hyphen}" in word:
                 word1, word = word.split("\N{soft hyphen}", 1)
                 word1 += "-"
@@ -101,16 +168,37 @@ class Layout:
         baseline = self.cursor_y + 1 * max_ascent
         if self.centered: baseline_x = (self.width / 2) - ((self.cursor_x - HSTEP) / 2)
         # Add all words to display list
-        for x, word, font in self.line:
-            y = baseline - font.metrics("ascent")
+        for relX, word, font in self.line:
+            x = self.x + relX
+            y = self.y + baseline - font.metrics("ascent")
             if self.centered: x += baseline_x
-            self.display_list.append((x,y,word,font));
+            self.displayList.append((x,y,word,font));
         # Update cursor_x, y fields
         max_descent = max([metric["descent"] for metric in metrics])
         self.cursor_y = baseline + 1 * max_descent
-        self.cursor_x = HSTEP
+        self.cursor_x = 0
         # Flush
         self.line=[]
+    
+
+    def paint(self):
+        cmds = []
+        if isinstance(self.node, Element) and self.node.tag == "pre":
+            x2,y2, = self.x +self.width, self.y + self.height
+            cmds.append(DrawRect(self.x, self.y, x2, y2, "gray") )
+        if self.layoutMode() == "inline":
+            for x, y, word, font in self.displayList:
+                cmds.append(DrawText(x,y, word, font))        
+        return cmds 
+
+
+
+def paintTree(layoutObject, displayList):
+    displayList.extend(layoutObject.paint())
+
+    for child in layoutObject.children:
+        paintTree(child, displayList)    
+
 
 # Gets a font or creates one, used for cacheing and optimisation
 def getFont(size, weight, style):

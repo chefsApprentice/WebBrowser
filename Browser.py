@@ -3,7 +3,8 @@ from HtmlTimeCache import HtmlTimeCache
 from SocketCache import socketCache
 from URL import URL
 from HTMLParser import HTMLParser, printTree
-from Layout import Layout
+from DocumentLayout import DocumentLayout
+from BlockLayout import paintTree
 from Tokens import Text
 
 
@@ -38,13 +39,14 @@ class Browser:
     # Draws text to canvas using tkinter text
     def draw(self):
         self.canvas.delete("all")
-        for x, y, c, f in self.display_list:
-            if y > self.scroll + height: continue
-            if y + VSTEP < self.scroll: continue
-            self.canvas.create_text(x, y-self.scroll, text=c, anchor="nw", font=f)
+        for cmd in self.displayList:
+            if cmd.top > self.scroll + height: continue
+            if cmd.bottom < self.scroll: continue
+            cmd.execute(self.scroll, self.canvas)
         
         # Scroll indiicator showing position throughout text
-        totalHeight = self.display_list[-1][1];
+        
+        totalHeight = self.document.height + 2*VSTEP - height
         if totalHeight < height: return
         scrollPerc = self.scroll / totalHeight * height
         minScroll = scrollPerc
@@ -74,13 +76,17 @@ class Browser:
             body = url.request();
 
         self.nodes = HTMLParser(body).parse();
-        self.display_list = Layout(self.nodes, width, self.viewSource).display_list
+        self.document = DocumentLayout(self.nodes, width, self.viewSource)
+        self.document.layout();
+        self.displayList = []
+        paintTree(self.document, self.displayList)
         self.draw()
 
 
     # On scrolldown move scroll posiiton and rerender
     def scrolldown(self, e):
-        if (self.scroll+SCROLL_STEP < self.display_list[-1][1]):
+        maxY = max(self.document.height + 2*VSTEP - height, 0) 
+        if (self.scroll+SCROLL_STEP < maxY):
             self.scroll += SCROLL_STEP
             self.draw()
 
@@ -96,10 +102,11 @@ class Browser:
         width = e.width
         height = e.height
         self.canvas.config(width=width, height=height)
-        self.display_list = Layout(self.nodes, width, self.viewSource).display_list
+        self.document = DocumentLayout(self.nodes, width, self.viewSource)
+        self.document.layout(); 
+        self.displayList = []
+        paintTree(self.document, self.displayList)
         self.draw();
-
-
 
 
 
