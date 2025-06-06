@@ -2,6 +2,20 @@ from Tokens import Text, Element
 import sys
 
 
+# Tags found in the head of html 
+HEAD_TAGS = [
+    "base", "basefont", "bgsound", "noscript",
+    "link", "meta", "title", "style", "script",
+]
+
+
+# Tags that self close and that the parser eneds to create a clsing tag for.
+SELF_CLOSING_TAGS = [
+    "area", "base", "br", "col", "embed", "hr", "img", "input",
+    "link", "meta", "param", "source", "track", "wbr",
+]
+
+
 # Takes string / body of a file and turns it into a html tree
 class HTMLParser:
     # Inits the array of tags which havent been finished (havent been closed)
@@ -10,20 +24,6 @@ class HTMLParser:
         self.unfinished = []
         self.withinScript = False
     
-
-    # Tags found in the head of html 
-    HEAD_TAGS = [
-        "base", "basefont", "bgsound", "noscript",
-        "link", "meta", "title", "style", "script",
-    ]
-
-
-    # Tags that self close and that the parser eneds to create a clsing tag for.
-    SELF_CLOSING_TAGS = [
-        "area", "base", "br", "col", "embed", "hr", "img", "input",
-        "link", "meta", "param", "source", "track", "wbr",
-    ]
-        
 
     # For each char in body either adds it to a tag or text node, only one node at a time.
     def parse(self):
@@ -57,9 +57,7 @@ class HTMLParser:
     # Creates text node
     def addText(self, text):
         if text.isspace(): return
-        print("text", text)
         if self.withinScript: return;
-        print("text2", text)
         self.implicitTags(None)
         parent = self.unfinished[-1]
         node = Text(text, parent)
@@ -70,7 +68,6 @@ class HTMLParser:
     # Close tag adds to end of list with previous as child.
     def addTag(self, tag):
         tag, attributes = self.getAttributes(tag);
-        print("tag", tag)
         if tag.startswith("!"): return
         # self.implicitTags(tag)
         if tag.startswith("/"): 
@@ -79,7 +76,7 @@ class HTMLParser:
             node = self.unfinished.pop()
             parent = self.unfinished[-1]
             parent.children.append(node)
-        elif tag in self.SELF_CLOSING_TAGS:
+        elif tag in SELF_CLOSING_TAGS:
             self.withinScript = False
             parent = self.unfinished[-1]
             node = Element(tag,attributes, parent)
@@ -127,11 +124,11 @@ class HTMLParser:
             if openTags == [] and tag != "html":
                 self.addTag("html")
             elif openTags == ["html"] and tag not in ["head", "body", "/html"]:
-                if tag in self.HEAD_TAGS:
+                if tag in HEAD_TAGS:
                     self.addTag("head")
                 else:
                     self.addTag("body")
-            elif openTags == ["html", "head"] and tag not in ["/head"] + self.HEAD_TAGS:
+            elif openTags == ["html", "head"] and tag not in ["/head"] + HEAD_TAGS:
                 self.addTag("/head")        
             else:
                 break    
