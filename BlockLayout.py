@@ -34,9 +34,15 @@ class BlockLayout:
         self.displayList = []
 
     def layout(self):
+        if self.node.tag == "head":
+            print("headyyy")
+            self.height = 0
+            return
+        print(self.node.tag)
+
         self.x = self.parent.x
         self.width = self.parent.width
-        if self.previous:
+        if self.previous and self.previous.y:
             self.y = self.previous.y + self.previous.height
         else:
             self.y = self.parent.y
@@ -44,6 +50,7 @@ class BlockLayout:
         mode = self.layoutMode()
         if mode == "block":
             previous = None
+            inHead = False;
             for child in self.node.children:
                 nextChild = BlockLayout(child, self, previous)
                 self.children.append(nextChild)
@@ -62,6 +69,9 @@ class BlockLayout:
             else:
                 self.recurse(self.node)
             self.flush()
+
+
+        # print("self", self.node.tag)
 
         for child in self.children:
             child.layout()
@@ -186,6 +196,9 @@ class BlockLayout:
         if isinstance(self.node, Element) and self.node.tag == "pre":
             x2,y2, = self.x +self.width, self.y + self.height
             cmds.append(DrawRect(self.x, self.y, x2, y2, "gray") )
+        elif isinstance(self.node, Element) and self.node.tag == "nav":
+            x2,y2, = self.x +self.width, self.y + self.height
+            cmds.append(DrawRect(self.x, self.y, x2, y2, "light steel blue") )
         if self.layoutMode() == "inline":
             for x, y, word, font in self.displayList:
                 cmds.append(DrawText(x,y, word, font))        
@@ -195,7 +208,6 @@ class BlockLayout:
 
 def paintTree(layoutObject, displayList):
     displayList.extend(layoutObject.paint())
-
     for child in layoutObject.children:
         paintTree(child, displayList)    
 
