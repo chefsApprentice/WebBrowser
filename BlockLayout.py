@@ -34,11 +34,9 @@ class BlockLayout:
         self.displayList = []
 
     def layout(self):
-        if self.node.tag == "head":
-            print("headyyy")
+        if isinstance(self.node, Element) and self.node.tag == "head":
             self.height = 0
             return
-        print(self.node.tag)
 
         self.x = self.parent.x
         self.width = self.parent.width
@@ -50,8 +48,10 @@ class BlockLayout:
         mode = self.layoutMode()
         if mode == "block":
             previous = None
-            inHead = False;
+            inBody = False;
             for child in self.node.children:
+                if isinstance(child, Element) and child.tag == "body": inBody = True
+                if isinstance(self.node, Element) and self.node.tag == "html" and not inBody: continue;
                 nextChild = BlockLayout(child, self, previous)
                 self.children.append(nextChild)
                 previous = nextChild
