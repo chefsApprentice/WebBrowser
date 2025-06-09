@@ -105,15 +105,15 @@ class BlockLayout:
 
 
     # Goes through tokens and makes appropriate changes to display list / styling.
-    def recurse(self, tree):
-        if isinstance(tree, Text):
-            for word in re.findall(r'[^\s\n]+|\n', tree.text):
-                self.word(word)
+    def recurse(self, node):
+        if isinstance(node, Text):
+            for word in re.findall(r'[^\s\n]+|\n', node.text):
+                self.word(node, word)
         else:
-            self.openTag(tree.tag)
-            for child in tree.children:
+            self.openTag(node.tag)
+            for child in node.children:
                 self.recurse(child)
-            self.closeTag(tree.tag)
+            self.closeTag(node.tag)
     
     def viewSourceRecurse(self, tree):
         if isinstance(tree, Text):
@@ -155,17 +155,23 @@ class BlockLayout:
 
                 
     # Takes a word and checks wether it fits on the current line. Adds word to current line at proper position.
-    def word(self, word):
-        font = getFont(self.size, self.weight, self.style)
+    def word(self, node, word):
+        weight = node.style["font-weight"]
+        style = node.style["font-style"]
+        color = node.style["color"]
+        if style == "normal": style = "roman"
+        # Convert from px to tk points
+        size = int(float(node.style["font-size"][:-2]) * .75)
+        font = getFont(size, weight, style)
         w=font.measure(word);
         if self.cursor_x + w > self.width or word == "\n":
             if "\N{soft hyphen}" in word:
                 word1, word = word.split("\N{soft hyphen}", 1)
                 word1 += "-"
-                self.line.append((self.cursor_x, word1, font))
+                self.line.append((self.cursor_x, word1, font, color))
             self.flush()
             self.cursor_x = HSTEP
-        self.line.append((self.cursor_x, word, font))
+        self.line.append((self.cursor_x, word, font, color))
         self.cursor_x += w + font.measure(" ")
     
 
@@ -173,16 +179,16 @@ class BlockLayout:
     def flush(self):
         # Align / find baseline
         if not self.line: return;
-        metrics = [font.metrics() for x, word, font in self.line]
+        metrics = [font.metrics() for x, word, font, color in self.line]
         max_ascent = max([metric["ascent"] for metric in metrics])
         baseline = self.cursor_y + 1 * max_ascent
         if self.centered: baseline_x = (self.width / 2) - ((self.cursor_x - HSTEP) / 2)
         # Add all words to display list
-        for relX, word, font in self.line:
+        for relX, word, font, color in self.line:
             x = self.x + relX
             y = self.y + baseline - font.metrics("ascent")
             if self.centered: x += baseline_x
-            self.displayList.append((x,y,word,font));
+            self.displayList.append((x,y,word,font, color));
         # Update cursor_x, y fields
         max_descent = max([metric["descent"] for metric in metrics])
         self.cursor_y = baseline + 1 * max_descent
@@ -199,9 +205,17 @@ class BlockLayout:
         elif isinstance(self.node, Element) and self.node.tag == "nav":
             x2,y2, = self.x +self.width, self.y + self.height
             cmds.append(DrawRect(self.x, self.y, x2, y2, "light steel blue") )
+       
+        bgColour = self.node.style.get("background-color", "transparent")
+        if bgColour != "transparent":
+            x2, y2 = self.x + self.width, self.y + self.height
+            rect = DrawRect(self.x, self.y, x2, y2, bgColour)
+            cmds.append(rect)
+
         if self.layoutMode() == "inline":
-            for x, y, word, font in self.displayList:
-                cmds.append(DrawText(x,y, word, font))        
+            for x, y, word, font, color in self.displayList:
+                cmds.append(DrawText(x,y, word, font, color))        
+        
         return cmds 
 
 

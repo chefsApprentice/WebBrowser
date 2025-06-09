@@ -5,9 +5,12 @@ from URL import URL
 from HTMLParser import HTMLParser, printTree
 from DocumentLayout import DocumentLayout
 from BlockLayout import paintTree
-from Tokens import Text
+from Tokens import Text, Element
+from CSSParser import CSSParser, style, cascadePriority
+from Utils import treeToList
 
 
+DEFAULT_STYLE_SHEET = CSSParser(open("browser.css").read()).parse()
 width, height = 3400, 2600
 HSTEP, VSTEP = 18, 30
 SCROLL_STEP = 100
@@ -76,6 +79,26 @@ class Browser:
             body = url.request();
 
         self.nodes = HTMLParser(body).parse();
+        links = [node.attributes["href"]
+            for node in treeToList(self.nodes, [])
+            if isinstance(node, Element)
+            and node.tag == "link"
+            and node.attributes.get("rel") == "stylesheet"
+            and "href" in node.attributes]
+        print("links", links)
+        rules = DEFAULT_STYLE_SHEET.copy()
+        for link in links:
+            print("link", link)
+            styleUrl = url.resolve(link)
+            try:
+                body = styleUrl.request()
+            except:
+                continue
+            rules.extend(CSSParser(body).parse())
+        print("done")
+        style(self.nodes, sorted(rules,key=cascadePriority))
+        for child in self.nodes.children:
+            style(child, rules)
         self.document = DocumentLayout(self.nodes, width, self.viewSource)
         self.document.layout();
         self.displayList = []
