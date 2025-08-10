@@ -1,8 +1,8 @@
 import re
 import tkinter.font
-from Tokens import Text, Element
-from DrawText import DrawText
-from DrawRect import DrawRect
+from src.parsing.Tokens import Text, Element
+from .DrawText import DrawText
+from .DrawRect import DrawRect
 
 
 HSTEP, VSTEP = 18, 30

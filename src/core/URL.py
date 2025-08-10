@@ -1,8 +1,8 @@
 import gzip
 import socket
 import ssl
-from SocketCache import socketCache
-from HtmlTimeCache import HtmlTimeCache
+from src.caching.SocketCache import socketCache
+from src.caching.HtmlTimeCache import HtmlTimeCache
 
 
 # Handles parsing of the URL and handling the TCP request to fetch the data.

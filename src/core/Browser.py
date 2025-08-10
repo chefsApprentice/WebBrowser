@@ -1,16 +1,16 @@
 import tkinter as tk
-from HtmlTimeCache import HtmlTimeCache
-from SocketCache import socketCache
-from URL import URL
-from HTMLParser import HTMLParser, printTree
-from DocumentLayout import DocumentLayout
-from BlockLayout import paintTree
-from Tokens import Text, Element
-from CSSParser import CSSParser, style, cascadePriority
-from Utils import treeToList
+from src.caching.HtmlTimeCache import HtmlTimeCache
+from src.caching.SocketCache import socketCache
+from .URL import URL
+from src.parsing.HTMLParser import HTMLParser, printTree
+from src.layout.DocumentLayout import DocumentLayout
+from src.layout.BlockLayout import paintTree
+from src.parsing.Tokens import Text, Element
+from src.parsing.CSSParser import CSSParser, style, cascadePriority
+from .Utils import treeToList
 
 
-DEFAULT_STYLE_SHEET = CSSParser(open("browser.css").read()).parse()
+DEFAULT_STYLE_SHEET = CSSParser(open("./src/static/browser.css").read()).parse()
 width, height = 3400, 2600
 HSTEP, VSTEP = 18, 30
 SCROLL_STEP = 100
@@ -85,17 +85,14 @@ class Browser:
             and node.tag == "link"
             and node.attributes.get("rel") == "stylesheet"
             and "href" in node.attributes]
-        print("links", links)
         rules = DEFAULT_STYLE_SHEET.copy()
         for link in links:
-            print("link", link)
             styleUrl = url.resolve(link)
             try:
                 body = styleUrl.request()
             except:
                 continue
             rules.extend(CSSParser(body).parse())
-        print("done")
         style(self.nodes, sorted(rules,key=cascadePriority))
         for child in self.nodes.children:
             style(child, rules)

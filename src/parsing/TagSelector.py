@@ -1,4 +1,4 @@
-from Tokens import Element
+from src.parsing.Tokens import Element
 
 
 class TagSelector:

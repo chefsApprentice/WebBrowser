@@ -1,6 +1,6 @@
-from Tokens import Element 
-from TagSelector import TagSelector
-from DescendantSelector import DescendantSelector
+from src.parsing.Tokens import Element 
+from src.parsing.TagSelector import TagSelector
+from src.parsing.DescendantSelector import DescendantSelector
 
 
 INHERITED_PROPERTIES = {
@@ -121,11 +121,8 @@ class CSSParser:
 
     # Increase i if start = /* until reaches */
     def skipComments(self):
-        print("skipCom:" , "i", self.i , "len", len(self.s))
         if self.i < len(self.s) - 1 and self.s[self.i:self.i+2] != "/*": return;
-        print("skip1")
         while self.i < len(self.s) - 1:
-            print("skip2")
             if self.s[self.i:self.i+2] == "*/":
                 self.i+=2;
                 return;

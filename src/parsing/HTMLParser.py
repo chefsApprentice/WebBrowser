@@ -1,4 +1,4 @@
-from Tokens import Text, Element
+from src.parsing.Tokens import Text, Element
 import sys
 
 
