@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="color-scheme" content="dark light">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Inconsolata:wght@200..900&display=swap">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/crimsonpro/v24/q5uBsoa5M_tv7IihmnkabARekYNwDeChrlU.woff2" as=font type="font/woff2">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/crimsonpro/v24/q5uDsoa5M_tv7IihmnkabARboYF6CsKj.woff2" as=font type="font/woff2">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/inconsolata/v32/QlddNThLqRwH-OJ1UHjlKENVzkWGVkL3GZQmAwLyya15IDhunA.woff2" as=font type="font/woff2">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/inconsolata/v32/QlddNThLqRwH-OJ1UHjlKENVzkWGVkL3GZQmAwLyya15.woff2" as=font type="font/woff2">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/crimsonpro/v24/q5uDsoa5M_tv7IihmnkabARboYE.woff2" as=font type="font/woff2">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/crimsonpro/v24/q5uBsoa5M_tv7IihmnkabARekYNwDQ.woff2" as=font type="font/woff2">
+  <link rel="preload" crossorigin href="https://fonts.gstatic.com/s/spectral/v13/rnCr-xNNww_2s0amA9M5knjsS_ul.woff2" as=font type="font/woff2">
+
+  <meta name="generator" content="pandoc" />
+
+
+
+  <link rel="prev" href="layout.html" />
+  <link rel="next" href="chrome.html" />
+
+  <link rel="stylesheet" href="book.css" />
+  <link rel="alternate" type="application/rss+xml" href="rss.xml" title="Web Browser Engineering">
+  <link rel="shortcut icon" href="favicon.ico">
+
+  <title>Applying Author Styles | Web Browser Engineering</title>
+
+</head>
+
+<body>
+
+
+<header>
+<h1 class="title">Applying Author Styles</h1>
+<a href="https://twitter.com/browserbook">Twitter</a> ·
+<a href="https://browserbook.substack.com/">Blog</a> ·
+<a href="https://github.com/browserengineering/book/discussions">Discussions</a>
+</header>
+
+<nav class="links">
+  Chapter 6 of <a href="index.html" title="Table of Contents">Web Browser Engineering</a>.
+  <a rel="prev" title="Previous chapter" href="layout.html">&lt;</a>
+  <a rel="next" title="Next chapter" href="chrome.html">&gt;</a>
+</nav>
+
+
+<aside class="ad">
+  <div class="wide">
+    <img src="im/cover.jpg" alt="The cover for Web Browser Engineering, published by Oxford University Press. Click the cover to buy a copy.">
+    <a class="preorder" href="https://global.oup.com/academic/product/web-browser-engineering-9780198913863">Buy a copy »</a>
+  </div>
+  <p class="narrow">
+    <span><i>Web Browser Engineering</i> is now available.</span>
+    <a href="https://global.oup.com/academic/product/web-browser-engineering-9780198913863">Buy a copy »</a>
+  </p>
+</aside>
+
+
+<nav id="toc">
+<ul>
+<li><a href="#parsing-with-functions"
+id="toc-parsing-with-functions">Parsing with Functions</a></li>
+<li><a href="#the-style-attribute" id="toc-the-style-attribute">The
+<code>style</code> Attribute</a></li>
+<li><a href="#selectors" id="toc-selectors">Selectors</a></li>
+<li><a href="#applying-style-sheets"
+id="toc-applying-style-sheets">Applying Style Sheets</a></li>
+<li><a href="#cascading" id="toc-cascading">Cascading</a></li>
+<li><a href="#inherited-styles" id="toc-inherited-styles">Inherited
+styles</a></li>
+<li><a href="#font-properties" id="toc-font-properties">Font
+Properties</a></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+<li><a href="#outline" id="toc-outline">Outline</a></li>
+<li><a href="#exercises" id="toc-exercises">Exercises</a></li>
+</ul>
+</nav>
+
+<p>In the <a href="layout.html">previous chapter</a> we gave each
+<code>pre</code> element a gray background. It looks OK, and it
+<em>is</em> good to have defaults, but sites want a say in how they
+look. Websites do that with <em>Cascading Style Sheets</em> (<a
+href="https://developer.mozilla.org/en-US/docs/Web/CSS">CSS</a>), which
+allow web authors (and, as we’ll see, browser developers) to define how
+a web page ought to look.</p>
+<h1 id="parsing-with-functions">Parsing with Functions</h1>
+<p>One way a web page can change its appearance is with the
+<code>style</code> attribute. For example, this changes an element’s
+background color:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html example"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;div</span> <span class="er">style</span><span class="ot">=</span><span class="st">&quot;background-color:lightblue&quot;</span><span class="kw">&gt;</span>Blue background<span class="kw">&lt;/div&gt;</span></span></code></pre></div>
+<p>And it renders like this:</p>
+<div style="background-color:lightblue">
+Blue background
+</div>
+<p>More generally, a <code>style</code> attribute contains
+property–value pairs separated by semicolons. The browser looks at those
+CSS property–value pairs to determine how an element looks, for example
+to determine its background color.</p>
+<p>To add this to our browser, we’ll need to start by parsing these
+property–value pairs. I’ll use recursive <em>parsing functions</em>,
+which are a good way to build a complex parser step by step. The idea is
+that each parsing function advances through the text being parsed and
+returns the data it parsed. We’ll have different functions for different
+types of data, and organize them in a <code>CSSParser</code> class that
+stores the text being parsed and the parser’s current position in
+it:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CSSParser:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, s):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.s <span class="op">=</span> s</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.i <span class="op">=</span> <span class="dv">0</span></span></code></pre></div>
+<p>Let’s start small and build up. A parsing function for whitespace
+increments the index <code>i</code> past every whitespace character:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> whitespace(<span class="va">self</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s) <span class="kw">and</span> <span class="va">self</span>.s[<span class="va">self</span>.i].isspace():</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.i <span class="op">+=</span> <span class="dv">1</span></span></code></pre></div>
+<p>Whitespace is meaningless, so there’s no parsed data to return. But
+when we parse property names, we’ll want to return them:</p>
+<div class="sourceCode" id="cb4" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> word(<span class="va">self</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> <span class="va">self</span>.i</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.s[<span class="va">self</span>.i].isalnum() <span class="kw">or</span> <span class="va">self</span>.s[<span class="va">self</span>.i] <span class="kw">in</span> <span class="st">&quot;#-.%&quot;</span>:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> (<span class="va">self</span>.i <span class="op">&gt;</span> start):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">&quot;Parsing error&quot;</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.s[start:<span class="va">self</span>.i]</span></code></pre></div>
+<p>This function increments <code>i</code> through any word
+characters,<span class="note-container"><span class="note">I’ve chosen
+the set of word characters here to cover property names (which use
+letters and the dash), numbers (which use the minus sign, numbers,
+periods), units (the percent sign), and colors (which use the hash
+sign). Real CSS values have a more complex syntax but this is enough for
+our browser.</span></span> much like <code>whitespace</code>. But to
+return the parsed data, it stores where it started and extracts the
+substring it moved through.</p>
+<p>Parsing functions can fail. The <code>word</code> function we just
+wrote raises an exception if <code>i</code> hasn’t advanced through at
+least one character—otherwise it didn’t point at a word to begin
+with.<span class="note-container"><span class="note">You can add error
+text to the exception-raising code, too; I recommend doing that to help
+you debug problems.</span></span> Likewise, to check for a literal colon
+(or some other punctuation character) you’d do this:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> literal(<span class="va">self</span>, literal):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> (<span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s) <span class="kw">and</span> <span class="va">self</span>.s[<span class="va">self</span>.i] <span class="op">==</span> literal):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">&quot;Parsing error&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.i <span class="op">+=</span> <span class="dv">1</span></span></code></pre></div>
+<p>The great thing about parsing functions is that they can build on one
+another. For example, property–value pairs are a property, a colon, and
+a value,<span class="note-container"><span class="note">In reality,
+properties and values have different syntaxes, so using
+<code>word</code> for both isn’t quite right, but for our browser’s
+limited CSS implementation this simplification will do.</span></span>
+with whitespace in between:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pair(<span class="va">self</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    prop <span class="op">=</span> <span class="va">self</span>.word()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.whitespace()</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.literal(<span class="st">&quot;:&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.whitespace()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> <span class="va">self</span>.word()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> prop.casefold(), val</span></code></pre></div>
+<p>We can parse sequences by calling parsing functions in a loop. For
+example, <code>style</code> attributes are a sequence of property–value
+pairs:</p>
+<div class="sourceCode" id="cb7" data-indent="8"
+data-expected="False"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> body(<span class="va">self</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    pairs <span class="op">=</span> {}</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        prop, val <span class="op">=</span> <span class="va">self</span>.pair()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        pairs[prop.casefold()] <span class="op">=</span> val</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.whitespace()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.literal(<span class="st">&quot;;&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.whitespace()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pairs</span></code></pre></div>
+<p>Now, in a browser, we always have to think about handling errors.
+Sometimes a web page author makes a mistake; sometimes our browser
+doesn’t support a feature some other browser does. So we should skip
+property–value pairs that don’t parse, but keep the ones that do.</p>
+<p>We can skip things with this little function; it stops at any one of
+a set of characters and returns that character (or <code>None</code> if
+it was stopped by the end of the file):</p>
+<div class="sourceCode" id="cb8" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ignore_until(<span class="va">self</span>, chars):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.s[<span class="va">self</span>.i] <span class="kw">in</span> chars:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>.s[<span class="va">self</span>.i]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">None</span></span></code></pre></div>
+<p>When we fail to parse a property–value pair, we skip either to the
+next semicolon or to the end of the string:</p>
+<div class="sourceCode" id="cb9" data-indent="4"
+data-expected="False"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> body(<span class="va">self</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s):</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            why <span class="op">=</span> <span class="va">self</span>.ignore_until([<span class="st">&quot;;&quot;</span>])</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> why <span class="op">==</span> <span class="st">&quot;;&quot;</span>:</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.literal(<span class="st">&quot;;&quot;</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.whitespace()</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Skipping parse errors is a double-edged sword. It hides error
+messages, making it harder for authors to debug their style sheets; it
+also makes it harder to debug your parser.<span
+class="note-container"><span class="note">I suggest removing the
+<code>try</code> block when debugging.</span></span> So in most
+programming situations this “catch-all” error handling is a code
+smell.</p>
+<p>But “catch-all” error handling has an unusual benefit on the web. The
+web is an ecosystem of many browsers,<span class="note-container"><span
+class="note">And an ecosystem of many browser versions, some of which
+haven’t been written yet—but need to be supported as best we
+can.</span></span> which (for example) support different kinds of
+property values.<span class="note-container"><span class="note">Our
+browser does not support parentheses in property values, for example,
+which real browsers use for things like the <code>calc</code> and
+<code>url</code> functions.</span></span> CSS that parses in one browser
+might not parse in another. With silent parse errors, browsers just
+ignore stuff they don’t understand, and web pages mostly work in all of
+them. The principle (variously called “Postel’s Law”,<span
+class="note-container"><span class="note">After a line in the
+specification of TCP, written by Jon Postel.</span></span> the “Digital
+Principle”,<span class="note-container"><span class="note">After a
+similar idea in circuit design, where transistors must be non-linear to
+reduce analog noise.</span></span> or the “Robustness Principle”) is:
+produce maximally conformant output but accept even minimally conformant
+input.</p>
+<div class="further">
+<p>This parsing method is formally called recursive descent parsing for
+an <a href="https://en.wikipedia.org/wiki/LL_parser">LL(1)</a> language.
+Parsers that use this method can be <a
+href="https://simdjson.org/">really, really fast</a>, at least if you
+put a lot of work into it. In a browser, faster parsing means pages load
+faster.</p>
+</div>
+<h1 id="the-style-attribute">The <code>style</code> Attribute</h1>
+<p>Now that the <code>style</code> attribute is parsed, we can use that
+parsed information in the rest of the browser. Let’s do that inside a
+<code>style</code> function, which saves the parsed <code>style</code>
+attribute in the node’s <code>style</code> field:</p>
+<div class="sourceCode" id="cb10"
+data-replace="(node)/(node%2C%20rules)"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(node):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    node.style <span class="op">=</span> {}</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(node, Element) <span class="kw">and</span> <span class="st">&quot;style&quot;</span> <span class="kw">in</span> node.attributes:</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        pairs <span class="op">=</span> CSSParser(node.attributes[<span class="st">&quot;style&quot;</span>]).body()</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="bu">property</span>, value <span class="kw">in</span> pairs.items():</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>            node.style[<span class="bu">property</span>] <span class="op">=</span> value</span></code></pre></div>
+<p>The method can recurse through the HTML tree to make sure each
+element gets a style:</p>
+<div class="sourceCode" id="cb11"
+data-replace="(node)/(node%2C%20rules),(child)/(child%2C%20rules)"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(node):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> child <span class="kw">in</span> node.children:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        style(child)</span></code></pre></div>
+<p>Call <code>style</code> in the browser’s <code>load</code> method,
+after parsing the HTML but before doing layout. With the
+<code>style</code> information stored on each element, the browser can
+consult it for styling information during paint:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BlockLayout:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> paint(<span class="va">self</span>):</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        bgcolor <span class="op">=</span> <span class="va">self</span>.node.style.get(<span class="st">&quot;background-color&quot;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">&quot;transparent&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> bgcolor <span class="op">!=</span> <span class="st">&quot;transparent&quot;</span>:</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            x2, y2 <span class="op">=</span> <span class="va">self</span>.x <span class="op">+</span> <span class="va">self</span>.width, <span class="va">self</span>.y <span class="op">+</span> <span class="va">self</span>.height</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            rect <span class="op">=</span> DrawRect(<span class="va">self</span>.x, <span class="va">self</span>.y, x2, y2, bgcolor)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>            cmds.append(rect)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span></code></pre></div>
+<p>I’ve removed the default gray background from <code>pre</code>
+elements for now, but we’ll put it back soon.</p>
+<p>Open <a href="https://browser.engineering/styles.html">the web
+version of this chapter</a> up in your browser to test your code: the
+code block at the start of the chapter should now have a light blue
+background.</p>
+<p>So this is one way web pages can change their appearance. And in the
+early days of the web,<span class="note-container"><span
+class="note">I’m talking Netscape 3. The late 1990s.</span></span>
+something like this was the <em>only</em> way. But honestly, it’s a
+pain—you need to set a <code>style</code> attribute on each element, and
+if you redesign the page, that’s a lot of attributes to edit. CSS was
+invented to improve on this state of affairs:</p>
+<ul>
+<li>One CSS file can consistently style many web pages at once.</li>
+<li>One line of CSS can consistently style many elements at once.</li>
+<li>CSS is future-proof and supports browsers with different
+features.</li>
+</ul>
+<p>To achieve these goals, CSS extends the <code>style</code> attribute
+with two related ideas: <em>selectors</em> and <em>cascading</em>.
+Selectors describe which HTML elements a list of property–value pairs
+apply to.<span class="note-container"><span class="note">CSS rules can
+also be guarded by “media queries”, which say that a rule should apply
+only in certain browsing environments (like only on mobile or only in
+landscape mode). Media queries are super-important for building sites
+that work across many devices, like reading this book on a phone. We’ll
+meet them in <a href="accessibility.html">Chapter 14</a>.</span></span>
+The combination of the two is called a <em>rule</em>, as shown in Figure
+1.</p>
+<div class="center">
+<figure>
+<img src="im/styles-syntax.png"
+alt="Figure 1: An annotated CSS rule." />
+<figcaption aria-hidden="true">Figure 1: An annotated CSS
+rule.</figcaption>
+</figure>
+</div>
+<p>Let’s add support for CSS to our browser. We’ll need to parse CSS
+files into selectors and property–value pairs, figure out which elements
+on the page match each selector, and copy those property values to the
+elements’ <code>style</code> fields.</p>
+<div class="further">
+<p>Actually, before CSS, you’d style pages with custom
+<em>presentational tags</em> like <a
+href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/font"><code>font</code></a>
+and <a
+href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/center"><code>center</code></a>
+(not to mention the <code>&lt;b&gt;</code> and <code>&lt;i&gt;</code>
+tags that we’ve already seen). This was easy to implement but made it
+hard to keep pages consistent. There were also properties on
+<code>&lt;body&gt;</code> like <a
+href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body#attributes"><code>text</code>
+and <code>vlink</code></a> that could consistently set text colors,
+mainly for links.</p>
+</div>
+<h1 id="selectors">Selectors</h1>
+<p>Selectors come in lots of types, but in our browser we’ll support
+two: tag selectors (<code>p</code> selects all <code>&lt;p&gt;</code>
+elements, <code>ul</code> selects all <code>&lt;ul&gt;</code> elements)
+and descendant selectors (<code>article div</code> selects all
+<code>div</code> elements with an <code>article</code> ancestor).<span
+class="note-container"><span class="note">The descendant selector
+associates to the left; in other words, <code>a b c</code> means a
+<code>&lt;c&gt;</code> that descends from a <code>&lt;b&gt;</code> that
+descends from an <code>&lt;a&gt;</code>, which maybe you’d write
+<code>(a b) c</code> if CSS had parentheses.</span></span></p>
+<p>We’ll have a class for each type of selector to store the selector’s
+contents, like the tag name for a tag selector:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TagSelector:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tag):</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tag <span class="op">=</span> tag</span></code></pre></div>
+<p>Each selector class will also test whether the selector matches an
+element:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TagSelector:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> matches(<span class="va">self</span>, node):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">isinstance</span>(node, Element) <span class="kw">and</span> <span class="va">self</span>.tag <span class="op">==</span> node.tag</span></code></pre></div>
+<p>A descendant selector works similarly. It has two parts, which are
+both themselves selectors:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DescendantSelector:</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, ancestor, descendant):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ancestor <span class="op">=</span> ancestor</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.descendant <span class="op">=</span> descendant</span></code></pre></div>
+<p>Then the <code>matches</code> method is recursive:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DescendantSelector:</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> matches(<span class="va">self</span>, node):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> <span class="va">self</span>.descendant.matches(node): <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> node.parent:</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.ancestor.matches(node.parent): <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            node <span class="op">=</span> node.parent</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span></code></pre></div>
+<p>Now, to create these selector objects, we need a parser. In this
+case, that’s just another parsing function:<span
+class="note-container"><span class="note">Once again, using
+<code>word</code> here for tag names is actually not quite right, but
+it’s close enough. One side effect of using <code>word</code> is that a
+class name selector (like <code>.main</code>) or an identifier selector
+(like <code>#signup</code>) is mis-parsed as a tag name selector. But,
+luckily, that won’t cause any harm since there aren’t any elements with
+those tags.</span></span></p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CSSParser:</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> selector(<span class="va">self</span>):</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> TagSelector(<span class="va">self</span>.word().casefold())</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.whitespace()</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s) <span class="kw">and</span> <span class="va">self</span>.s[<span class="va">self</span>.i] <span class="op">!=</span> <span class="st">&quot;{&quot;</span>:</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>            tag <span class="op">=</span> <span class="va">self</span>.word()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            descendant <span class="op">=</span> TagSelector(tag.casefold())</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            out <span class="op">=</span> DescendantSelector(out, descendant)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.whitespace()</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code></pre></div>
+<p>A CSS file is just a sequence of selectors and blocks:</p>
+<div class="sourceCode" id="cb18" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse(<span class="va">self</span>):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    rules <span class="op">=</span> []</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s):</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.whitespace()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>        selector <span class="op">=</span> <span class="va">self</span>.selector()</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.literal(<span class="st">&quot;{&quot;</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.whitespace()</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        body <span class="op">=</span> <span class="va">self</span>.body()</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.literal(<span class="st">&quot;}&quot;</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        rules.append((selector, body))</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rules</span></code></pre></div>
+<p>Once again, let’s pause to think about error handling. First, when we
+call <code>body</code> while parsing CSS, we need it to stop when it
+reaches a closing brace:</p>
+<div class="sourceCode" id="cb19" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> body(<span class="va">self</span>):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s) <span class="kw">and</span> <span class="va">self</span>.s[<span class="va">self</span>.i] <span class="op">!=</span> <span class="st">&quot;}&quot;</span>:</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            why <span class="op">=</span> <span class="va">self</span>.ignore_until([<span class="st">&quot;;&quot;</span>, <span class="st">&quot;}&quot;</span>])</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> why <span class="op">==</span> <span class="st">&quot;;&quot;</span>:</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.literal(<span class="st">&quot;;&quot;</span>)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.whitespace()</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Second, there might also be a parse error while parsing a selector.
+In that case, we want to skip the whole rule:</p>
+<div class="sourceCode" id="cb20" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse(<span class="va">self</span>):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">self</span>.i <span class="op">&lt;</span> <span class="bu">len</span>(<span class="va">self</span>.s):</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>            why <span class="op">=</span> <span class="va">self</span>.ignore_until([<span class="st">&quot;}&quot;</span>])</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> why <span class="op">==</span> <span class="st">&quot;}&quot;</span>:</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.literal(<span class="st">&quot;}&quot;</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.whitespace()</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Error handling is hard to get right, so make sure to test your
+parser, just like the HTML parser in <a href="html.html">Chapter 4</a>.
+Here are some errors you might run into:</p>
+<ul>
+<li><p>If the output is missing some rules or properties, it’s probably
+a bug being hidden by error handling. Remove some <code>try</code>
+blocks and see if the error in question can be fixed.</p></li>
+<li><p>If you’re seeing extra rules or properties that are mangled
+versions of the correct ones, you probably forgot to update
+<code>i</code> somewhere.</p></li>
+<li><p>If you’re seeing an infinite loop, check whether the
+error-handling code always increases <code>i</code>. Each parsing
+function (except <code>whitespace</code>) should always increment
+<code>i</code>.</p></li>
+</ul>
+<p>You can also add a <code>print</code> statement to the start and
+end<span class="note-container"><span class="note">If you print an open
+parenthesis at the start of the function and a close parenthesis at the
+end, you can use your editor’s “jump to other parenthesis” feature to
+skip through output quickly.</span></span> of each parsing function with
+the name of the parsing function,<span class="note-container"><span
+class="note">If you also add the right number of spaces to each line
+it’ll be a lot easier to read. Don’t neglect debugging niceties like
+this!</span></span> the index <code>i</code>,<span
+class="note-container"><span class="note">It can be especially helpful
+to print, say, the 20 characters around index <code>i</code> from the
+string.</span></span> and the parsed data. It’s a lot of output, but
+it’s a sure-fire way to find really complicated bugs.</p>
+<div class="further">
+<p>A parser receives arbitrary bytes as input, so parser bugs are
+usually easy for bad actors to exploit. Parser correctness is thus
+crucial to browser security, as <a
+href="https://nvd.nist.gov/vuln/detail/CVE-2010-3971">many</a> <a
+href="https://nvd.nist.gov/vuln/detail/CVE-2007-0943">parser</a> <a
+href="https://nvd.nist.gov/vuln/detail/CVE-2010-1663">bugs</a> have
+demonstrated. Nowadays browser developers use <a
+href="https://hacks.mozilla.org/2021/02/browser-fuzzing-at-mozilla/">fuzzing</a>
+to try to find and fix such bugs.</p>
+</div>
+<h1 id="applying-style-sheets">Applying Style Sheets</h1>
+<p>With the parser debugged, the next step is applying the parsed style
+sheet to the web page. Since each CSS rule can style many elements on
+the page, this will require looping over all elements <em>and</em> all
+rules. When a rule applies, its property–value pairs are copied to the
+element’s style information:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(node, rules):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> selector, body <span class="kw">in</span> rules:</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> selector.matches(node): <span class="cf">continue</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="bu">property</span>, value <span class="kw">in</span> body.items():</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            node.style[<span class="bu">property</span>] <span class="op">=</span> value</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Make sure to put this loop before the one that parses the
+<code>style</code> attribute: the <code>style</code> attribute should
+override style sheet values.</p>
+<p>To try this out, we’ll need a style sheet. Every browser ships with a
+<em>browser style sheet</em>,<span class="note-container"><span
+class="note">Technically called a “user agent” style sheet. User agent,
+like the Memex.</span></span> which defines its default styling for the
+various HTML elements. For our browser, it might look like this:</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pre { <span class="kw">background-color</span>: <span class="cn">gray</span><span class="op">;</span> }</span></code></pre></div>
+<p>Let’s store that in a new file, <code>browser.css</code>, and have
+our browser read it when it starts:</p>
+<div class="sourceCode" id="cb23" data-replace="browser/browser6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>DEFAULT_STYLE_SHEET <span class="op">=</span> CSSParser(<span class="bu">open</span>(<span class="st">&quot;browser.css&quot;</span>).read()).parse()</span></code></pre></div>
+<p>Now, when the browser loads a web page, it can apply that default
+style sheet to set up its default styling for each element:</p>
+<div class="sourceCode" id="cb24" data-indent="8"
+data-expected="False"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load(<span class="va">self</span>, url):</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    rules <span class="op">=</span> DEFAULT_STYLE_SHEET.copy()</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    style(<span class="va">self</span>.nodes, rules)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>The browser style sheet is the default for the whole web. But each
+web site can also use CSS to set a consistent style for the whole site
+by referencing CSS files using <code>link</code> elements:</p>
+<pre class="example"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;/main.css&quot;&gt;</code></pre>
+<p>The mandatory <code>rel</code> attribute identifies this link as a
+style sheet<span class="note-container"><span class="note">For browsers,
+<code>stylesheet</code> is the most important <a
+href="https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types">kind
+of link</a>, but there’s also <code>preload</code> for loading assets
+that a page will use later and <code>icon</code> for identifying
+favicons. Search engines also use these links; for example,
+<code>rel=canonical</code> names the “true name” of a page and search
+engines use it to track pages that appear at multiple
+URLs.</span></span> and the <code>href</code> attribute has the style
+sheet URL. We need to find all these links, download their style sheets,
+and apply them, as in Figure 2.</p>
+<div class="center">
+<figure>
+<img src="im/styles-http-2.gif"
+alt="Figure 2: A browser loading related assets, like a stylesheet, for a web page." />
+<figcaption aria-hidden="true">Figure 2: A browser loading related
+assets, like a stylesheet, for a web page.</figcaption>
+</figure>
+</div>
+<p>Since we’ll be doing similar tasks in the next few chapters, let’s
+generalize a bit and write a recursive function that turns a tree into a
+list of nodes:</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tree_to_list(tree, <span class="bu">list</span>):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">list</span>.append(tree)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> child <span class="kw">in</span> tree.children:</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        tree_to_list(child, <span class="bu">list</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">list</span></span></code></pre></div>
+<p>I’ve written this helper to work on both HTML and layout trees, for
+later. We can use <code>tree_to_list</code> with a Python list
+comprehension to grab the URL of each linked style sheet:<span
+class="note-container"><span class="note">It’s kind of crazy, honestly,
+that Python lets you write things like this—crazy, but very
+convenient!</span></span></p>
+<div class="sourceCode" id="cb27" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load(<span class="va">self</span>, url):</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    links <span class="op">=</span> [node.attributes[<span class="st">&quot;href&quot;</span>]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> node <span class="kw">in</span> tree_to_list(<span class="va">self</span>.nodes, [])</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>             <span class="cf">if</span> <span class="bu">isinstance</span>(node, Element)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>             <span class="kw">and</span> node.tag <span class="op">==</span> <span class="st">&quot;link&quot;</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>             <span class="kw">and</span> node.attributes.get(<span class="st">&quot;rel&quot;</span>) <span class="op">==</span> <span class="st">&quot;stylesheet&quot;</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>             <span class="kw">and</span> <span class="st">&quot;href&quot;</span> <span class="kw">in</span> node.attributes]</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Now, these style sheet URLs are usually not full URLs; they are
+something called <em>relative URLs</em>, which can be:<span
+class="note-container"><span class="note">There are other flavors,
+including query-relative, that I’m skipping.</span></span></p>
+<ul>
+<li>a normal URL, which specifies a scheme, host, path, and so on;</li>
+<li>a host-relative URL, which starts with a slash but reuses the
+existing scheme and host;</li>
+<li>a path-relative URL, which doesn’t start with a slash and is
+resolved like a file name would be;</li>
+<li>a scheme-relative URL that starts with “<code>//</code>” followed by
+a full URL, which should use the existing scheme.</li>
+</ul>
+<p>To download the style sheets, we’ll need to convert each relative URL
+into a full URL:</p>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> URL:</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> resolve(<span class="va">self</span>, url):</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="st">&quot;://&quot;</span> <span class="kw">in</span> url: <span class="cf">return</span> URL(url)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> url.startswith(<span class="st">&quot;/&quot;</span>):</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dir</span>, _ <span class="op">=</span> <span class="va">self</span>.path.rsplit(<span class="st">&quot;/&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>            url <span class="op">=</span> <span class="bu">dir</span> <span class="op">+</span> <span class="st">&quot;/&quot;</span> <span class="op">+</span> url</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> url.startswith(<span class="st">&quot;//&quot;</span>):</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> URL(<span class="va">self</span>.scheme <span class="op">+</span> <span class="st">&quot;:&quot;</span> <span class="op">+</span> url)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> URL(<span class="va">self</span>.scheme <span class="op">+</span> <span class="st">&quot;://&quot;</span> <span class="op">+</span> <span class="va">self</span>.host <span class="op">+</span> <span class="op">\</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;:&quot;</span> <span class="op">+</span> <span class="bu">str</span>(<span class="va">self</span>.port) <span class="op">+</span> url)</span></code></pre></div>
+<p>Also, because of the early web architecture, browsers are responsible
+for resolving parent directories (<code>..</code>) in relative URLs:</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> URL:</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> resolve(<span class="va">self</span>, url):</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> url.startswith(<span class="st">&quot;/&quot;</span>):</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dir</span>, _ <span class="op">=</span> <span class="va">self</span>.path.rsplit(<span class="st">&quot;/&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">while</span> url.startswith(<span class="st">&quot;../&quot;</span>):</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>                _, url <span class="op">=</span> url.split(<span class="st">&quot;/&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="st">&quot;/&quot;</span> <span class="kw">in</span> <span class="bu">dir</span>:</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">dir</span>, _ <span class="op">=</span> <span class="bu">dir</span>.rsplit(<span class="st">&quot;/&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>            url <span class="op">=</span> <span class="bu">dir</span> <span class="op">+</span> <span class="st">&quot;/&quot;</span> <span class="op">+</span> url</span></code></pre></div>
+<p>Now the browser can request each linked style sheet and add its rules
+to the <code>rules</code> list:</p>
+<div class="sourceCode" id="cb30" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load(<span class="va">self</span>, url):</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> link <span class="kw">in</span> links:</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>        style_url <span class="op">=</span> url.resolve(link)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>            body <span class="op">=</span> style_url.request()</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span>:</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>        rules.extend(CSSParser(body).parse())</span></code></pre></div>
+<p>The <code>try</code>/<code>except</code> ignores style sheets that
+fail to download, but it can also hide bugs in your code, so if
+something’s not right try removing it temporarily.</p>
+<div class="further">
+<p>Each browser engine has its own browser style sheet (<a
+href="https://source.chromium.org/chromium/chromium/src/+/master:third_party/blink/renderer/core/html/resources/html.css">Chromium</a>,
+<a
+href="https://github.com/WebKit/WebKit/blob/main/Source/WebCore/css/html.css">WebKit</a>,
+<a
+href="https://searchfox.org/mozilla-central/source/layout/style/res/html.css">Gecko</a>).
+<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/all">Reset
+style sheets</a> are often used to overcome any differences. This works
+because web page style sheets take precedence over the browser style
+sheet, just like in our browser, though real browsers <a
+href="https://www.w3.org/TR/2011/REC-CSS2-20110607/cascade.html#cascading-order">fiddle
+with priorities</a> to make that happen.<span
+class="note-container"><span class="note">Our browser style sheet only
+has tag selectors in it, so just putting them first works well enough.
+But if the browser style sheet had any descendant selectors, we’d
+encounter bugs.</span></span></p>
+</div>
+<h1 id="cascading">Cascading</h1>
+<p>A web page can now have any number of style sheets applied to it. And
+since two rules can apply to the same element, rule order matters: it
+determines which rules take priority, and when one rule overrides
+another.</p>
+<p>In CSS, the correct order is called <em>cascade order</em>, and it is
+based on the rule’s selector, with file order as a tie breaker. This
+system allows more specific rules to override more general ones, so that
+you can have a browser style sheet, a site-wide style sheet, and maybe a
+special style sheet for a specific web page, all co-existing.</p>
+<p>Since our browser only has tag selectors, cascade order just counts
+them:</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TagSelector:</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tag):</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.priority <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DescendantSelector:</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, ancestor, descendant):</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.priority <span class="op">=</span> ancestor.priority <span class="op">+</span> descendant.priority</span></code></pre></div>
+<p>Then cascade order for rules is just those priorities:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cascade_priority(rule):</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    selector, body <span class="op">=</span> rule</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> selector.priority</span></code></pre></div>
+<p>Now when we call <code>style</code>, we need to sort the rules, like
+this:</p>
+<div class="sourceCode" id="cb33" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load(<span class="va">self</span>, url):</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    style(<span class="va">self</span>.nodes, <span class="bu">sorted</span>(rules, key<span class="op">=</span>cascade_priority))</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Note that before sorting <code>rules</code>, it is in file order.
+Python’s <code>sorted</code> function keeps the relative order of things
+with equal priority, so file order acts as a tie breaker, as it
+should.</p>
+<p>That’s it: we’ve added CSS to our web browser! I mean—for background
+colors. But there’s more to web design than that. For example, if you’re
+changing background colors you might want to change foreground colors as
+well—the CSS <code>color</code> property. But there’s a catch:
+<code>color</code> affects text, and there’s no way to select a text
+node. How can that work?</p>
+<div class="further">
+<p>Web pages can also supply <a
+href="https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets">alternative
+style sheets</a>, and some browsers provide (obscure) methods to switch
+from the default to an alternate style sheet. The CSS standard also
+allows for <a href="https://userstyles.org">user styles</a> that set
+custom style sheets for websites, with a priority <a
+href="https://www.w3.org/TR/css-cascade/#cascade-origin">between</a>
+browser and website-provided style sheets.</p>
+</div>
+<h1 id="inherited-styles">Inherited styles</h1>
+<p>The way text styles work in CSS is called <em>inheritance</em>.
+Inheritance means that if some node doesn’t have a value for a certain
+property, it uses its parent’s value instead. That includes text nodes.
+Some properties are inherited and some aren’t; it depends on the
+property. Background color isn’t inherited, but text color and other
+font properties are.</p>
+<p>Let’s implement inheritance for four font properties:
+<code>font-size</code>, <code>font-style</code> (for
+<code>italic</code>), <code>font-weight</code> (for <code>bold</code>),
+and <code>color</code>:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>INHERITED_PROPERTIES <span class="op">=</span> {</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;font-size&quot;</span>: <span class="st">&quot;16px&quot;</span>,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;font-style&quot;</span>: <span class="st">&quot;normal&quot;</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;font-weight&quot;</span>: <span class="st">&quot;normal&quot;</span>,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;color&quot;</span>: <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>The values in this dictionary are each property’s defaults. We’ll
+then add the actual inheritance code to the <code>style</code> function.
+It has to come <em>before</em> the other loops, since explicit rules
+should override inheritance:</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(node, rules):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">property</span>, default_value <span class="kw">in</span> INHERITED_PROPERTIES.items():</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> node.parent:</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>            node.style[<span class="bu">property</span>] <span class="op">=</span> node.parent.style[<span class="bu">property</span>]</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>            node.style[<span class="bu">property</span>] <span class="op">=</span> default_value</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>Inheriting font size comes with a twist. Web pages can use
+percentages as font sizes: <code>h1 { font-size: 150% }</code> makes
+headings 50% bigger than the surrounding text. But what if you had, say,
+a <code>code</code> element inside an <code>h1</code> tag—would that
+inherit the <code>150%</code> value for <code>font-size</code>? Surely
+it shouldn’t be another 50% bigger than the rest of the heading
+text?</p>
+<p>In fact, browsers resolve font size percentages to absolute pixel
+units before those values are inherited; it’s called a “computed
+style”.<span class="note-container"><span class="note">The full CSS
+standard is a bit more confusing: there are <a
+href="https://www.w3.org/TR/CSS2/cascade.html#value-stages">specified,
+computed, used, and actual values</a>, and they affect lots of CSS
+properties besides <code>font-size</code>. But we’re not implementing
+those other properties in this book.</span></span></p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(node, rules):</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node.style[<span class="st">&quot;font-size&quot;</span>].endswith(<span class="st">&quot;%&quot;</span>):</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> child <span class="kw">in</span> node.children:</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>        style(child, rules)</span></code></pre></div>
+<p>Resolving percentage sizes has just one tricky edge case: percentage
+sizes for the root <code>html</code> element. In that case the
+percentage is relative to the default font size:<span
+class="note-container"><span class="note">This code has to parse and
+unparse font sizes because our <code>style</code> field stores strings;
+in a real browser the computed style is stored parsed so this doesn’t
+have to happen.</span></span></p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> style(node, rules):</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node.style[<span class="st">&quot;font-size&quot;</span>].endswith(<span class="st">&quot;%&quot;</span>):</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> node.parent:</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>            parent_font_size <span class="op">=</span> node.parent.style[<span class="st">&quot;font-size&quot;</span>]</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>            parent_font_size <span class="op">=</span> INHERITED_PROPERTIES[<span class="st">&quot;font-size&quot;</span>]</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>        node_pct <span class="op">=</span> <span class="bu">float</span>(node.style[<span class="st">&quot;font-size&quot;</span>][:<span class="op">-</span><span class="dv">1</span>]) <span class="op">/</span> <span class="dv">100</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>        parent_px <span class="op">=</span> <span class="bu">float</span>(parent_font_size[:<span class="op">-</span><span class="dv">2</span>])</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>        node.style[<span class="st">&quot;font-size&quot;</span>] <span class="op">=</span> <span class="bu">str</span>(node_pct <span class="op">*</span> parent_px) <span class="op">+</span> <span class="st">&quot;px&quot;</span></span></code></pre></div>
+<p>Note that this happens after all of the different sources of style
+values are handled (so we are working with the final
+<code>font-size</code> value) but before we recurse (so any children can
+assume that their parent’s <code>font-size</code> has been resolved to a
+pixel value).</p>
+<div class="further">
+<p>Styling a page can be slow, so real browsers apply tricks like <a
+href="https://bugs.webkit.org/show_bug.cgi?id=53880">bloom filters</a>
+for descendant selectors, <a
+href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/93.0.4532.3:third_party/blink/renderer/core/css/style-calculation.md">indices</a>
+for simple selectors, and various forms of <a
+href="https://hacks.mozilla.org/2017/08/inside-a-super-fast-css-engine-quantum-css-aka-stylo/">sharing</a>
+and <a
+href="https://blog.rust-lang.org/2017/11/14/Fearless-Concurrency-In-Firefox-Quantum.html">parallelism</a>.
+Some types of sharing are also important to reduce memory usage—computed
+style sheets can be huge!</p>
+</div>
+<h1 id="font-properties">Font Properties</h1>
+<p>So now with all these font properties implemented, let’s change
+layout to use them! That will let us move our default text styles to the
+browser style sheet:</p>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>a { <span class="kw">color</span>: <span class="cn">blue</span><span class="op">;</span> }</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>i { <span class="kw">font-style</span>: <span class="dv">italic</span><span class="op">;</span> }</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>b { <span class="kw">font-weight</span>: <span class="dv">bold</span><span class="op">;</span> }</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>small { <span class="kw">font-size</span>: <span class="dv">90</span><span class="dt">%</span><span class="op">;</span> }</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>big { <span class="kw">font-size</span>: <span class="dv">110</span><span class="dt">%</span><span class="op">;</span> }</span></code></pre></div>
+<p>The browser looks up font information in <code>BlockLayout</code>’s
+<code>word</code> method; we’ll need to change it to use the node’s
+<code>style</code> field, and for that, we’ll need to pass in the node
+itself:</p>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BlockLayout:</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> recurse(<span class="va">self</span>, node):</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(node, Text):</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> word <span class="kw">in</span> node.text.split():</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.word(node, word)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> word(<span class="va">self</span>, node, word):</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>        weight <span class="op">=</span> node.style[<span class="st">&quot;font-weight&quot;</span>]</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>        style <span class="op">=</span> node.style[<span class="st">&quot;font-style&quot;</span>]</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> style <span class="op">==</span> <span class="st">&quot;normal&quot;</span>: style <span class="op">=</span> <span class="st">&quot;roman&quot;</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>        size <span class="op">=</span> <span class="bu">int</span>(<span class="bu">float</span>(node.style[<span class="st">&quot;font-size&quot;</span>][:<span class="op">-</span><span class="dv">2</span>]) <span class="op">*</span> <span class="fl">.75</span>)</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>        font <span class="op">=</span> get_font(size, weight, style)</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span></code></pre></div>
+<p>Note that for <code>font-style</code> we need to translate CSS
+“normal” to Tk “roman” and for <code>font-size</code> we need to convert
+CSS pixels to Tk points.</p>
+<p>Text color requires a bit more plumbing. First, we have to read the
+color and store it in the current <code>line</code>:</p>
+<div class="sourceCode" id="cb40" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> word(<span class="va">self</span>, node, word):</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> node.style[<span class="st">&quot;color&quot;</span>]</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.line.append((<span class="va">self</span>.cursor_x, word, font, color))</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>The <code>flush</code> method then copies it from <code>line</code>
+to <code>display_list</code>:</p>
+<div class="sourceCode" id="cb41" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> flush(<span class="va">self</span>):</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    metrics <span class="op">=</span> [font.metrics() <span class="cf">for</span> x, word, font, color <span class="kw">in</span> <span class="va">self</span>.line]</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> rel_x, word, font, color <span class="kw">in</span> <span class="va">self</span>.line:</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.display_list.append((x, y, word, font, color))</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span></code></pre></div>
+<p>That <code>display_list</code> is converted to drawing commands in
+<code>paint</code>:</p>
+<div class="sourceCode" id="cb42" data-indent="4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> paint(<span class="va">self</span>):</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ...</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>.layout_mode() <span class="op">==</span> <span class="st">&quot;inline&quot;</span>:</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> x, y, word, font, color <span class="kw">in</span> <span class="va">self</span>.display_list:</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>            cmds.append(DrawText(x, y, word, font, color))</span></code></pre></div>
+<p><code>DrawText</code> now needs a <code>color</code> argument, and
+needs to pass it to <code>create_text</code>’s <code>fill</code>
+parameter:</p>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DrawText:</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, x1, y1, text, font, color):</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.color <span class="op">=</span> color</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> execute(<span class="va">self</span>, scroll, canvas):</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        canvas.create_text(</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>            fill<span class="op">=</span><span class="va">self</span>.color)</span></code></pre></div>
+<p>Phew! That was a lot of coordinated changes, so test everything and
+make sure it works. You should now see links on the <a
+href="https://browser.engineering/styles.html">web version of this
+chapter</a> appear in blue—and you might also notice that the rest of
+the text has become slightly lighter.<span class="note-container"><span
+class="note">The main body text on the web is colored <code>#333</code>,
+or roughly 97% black after <a
+href="https://en.wikipedia.org/wiki/SRGB#From_sRGB_to_CIE_XYZ">gamma
+correction</a>.</span></span> Also, now that we’re explicitly setting
+the text color, we should explicitly set the background color as
+well:<span class="note-container"><span class="note">My Linux machine
+sets the default background color to a light gray, while my macOS laptop
+has a “Dark Mode” where the default background color becomes a dark
+gray. Setting the background color explicitly avoids the browser looking
+strange in these situations.</span></span></p>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Browser:</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.canvas <span class="op">=</span> tkinter.Canvas(</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>            <span class="co"># ...</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>            bg<span class="op">=</span><span class="st">&quot;white&quot;</span>,</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ...</span></span></code></pre></div>
+<p>These changes obsolete all the code in <code>BlockLayout</code> that
+handles specific tags, like the <code>style</code>, <code>weight</code>,
+and <code>size</code> properties and the <code>open_tag</code> and
+<code>close_tag</code> methods. Let’s refactor a bit to get rid of
+them:</p>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BlockLayout:</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> recurse(<span class="va">self</span>, node):</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(node, Text):</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> word <span class="kw">in</span> node.text.split():</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.word(node, word)</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> node.tag <span class="op">==</span> <span class="st">&quot;br&quot;</span>:</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.flush()</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> child <span class="kw">in</span> node.children:</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.recurse(child)</span></code></pre></div>
+<p>Styling not only lets web page authors style their own web pages; it
+also moves browser code to a simple style sheet. And that’s a big
+improvement: the style sheet is simpler and easier to edit. Sometimes
+converting code to data like this means maintaining a new format, but
+browsers get to reuse a format, CSS, they need to support anyway.</p>
+<p>But of course styling also has the nice benefit of nicely rendering
+this book’s homepage (Figure 3). Notice how the background is no longer
+gray, and the links have colors.</p>
+<div class="center">
+<figure>
+<img src="examples/example6-browserengineering-screenshot.png"
+alt="Figure 3: https://browser.engineering/ viewed in this chapter’s version of the browser." />
+<figcaption aria-hidden="true">Figure 3: https://browser.engineering/
+viewed in this chapter’s version of the browser.</figcaption>
+</figure>
+</div>
+<div class="further">
+<p>Usually a point is 1/72 of an inch while pixel size depends on the
+screen, but CSS instead <a
+href="https://www.w3.org/TR/2011/REC-CSS2-20110607/syndata.html#length-units">defines
+an inch</a> as 96 pixels, because that was once a common screen
+resolution. And these CSS pixels <a
+href="https://developer.mozilla.org/en-US/docs/Web/CSS/resolution">need
+not be</a> physical pixels! Seem weird? This complexity is the result of
+changes in browsers (zooming) and hardware (high-DPI<span
+class="note-container"><span class="note">Dots per inch.</span></span>
+screens) plus the need to be compatible with older web pages meant for
+the time when all screens had 96 pixels per inch.</p>
+</div>
+<h1 id="summary">Summary</h1>
+<p>This chapter implemented a rudimentary but complete styling engine,
+including downloading, parsing, matching, sorting, and applying CSS
+files. That means we:</p>
+<ul>
+<li>wrote a CSS parser;</li>
+<li>added support for both <code>style</code> attributes and
+<code>link</code>ed CSS files;</li>
+<li>implemented cascading and inheritance;</li>
+<li>refactored <code>BlockLayout</code> to move the font properties to
+CSS;</li>
+<li>moved most tag-specific reasoning to a browser style sheet.</li>
+</ul>
+<p>Our styling engine is also relatively easy to extend with properties
+and selectors.</p>
+<iframe class="widget" src="widgets/lab6-browser.html" height="400"></iframe>
+<div id="signup">
+<iframe src="https://browserbook.substack.com/embed" width="350" height="150" frameborder="0" scrolling="no"></iframe>
+<a href="#" id="signup-close">Close</a>
+</div>
+
+<h1 id="outline">Outline</h1>
+<p>The complete set of functions, classes, and methods in our browser
+should now look something like this:</p>
+<div class="cmd python outline">
+<code class=line><span class=kw>class</span> URL:
+<code class=line>    <span class=kw>def</span> __init__(url)
+</code>
+<code class=line>    <span class=kw>def</span> request()
+</code>
+<code class=line>    <span class=kw>def</span> resolve(url)
+</code>
+</code>
+<code class=line><span class=kw>class</span> Text:
+<code class=line>    <span class=kw>def</span> __init__(text, parent)
+</code>
+<code class=line>    <span class=kw>def</span> __repr__()
+</code>
+</code>
+<code class=line><span class=kw>class</span> Element:
+<code class=line>    <span class=kw>def</span> __init__(tag, attributes, parent)
+</code>
+<code class=line>    <span class=kw>def</span> __repr__()
+</code>
+</code>
+<code class=line><span class=kw>def</span> print_tree(node, indent)
+</code>
+<code class=line><span class=kw>def</span> tree_to_list(tree, list)
+</code>
+<code class=line><span class=kw>class</span> HTMLParser:
+<code class=line>    SELF_CLOSING_TAGS
+</code>
+<code class=line>    HEAD_TAGS
+</code>
+<code class=line>    <span class=kw>def</span> __init__(body)
+</code>
+<code class=line>    <span class=kw>def</span> parse()
+</code>
+<code class=line>    <span class=kw>def</span> get_attributes(text)
+</code>
+<code class=line>    <span class=kw>def</span> add_text(text)
+</code>
+<code class=line>    <span class=kw>def</span> add_tag(tag)
+</code>
+<code class=line>    <span class=kw>def</span> implicit_tags(tag)
+</code>
+<code class=line>    <span class=kw>def</span> finish()
+</code>
+</code>
+<code class=line><span class=kw>class</span> CSSParser:
+<code class=line>    <span class=kw>def</span> __init__(s)
+</code>
+<code class=line>    <span class=kw>def</span> whitespace()
+</code>
+<code class=line>    <span class=kw>def</span> literal(literal)
+</code>
+<code class=line>    <span class=kw>def</span> word()
+</code>
+<code class=line>    <span class=kw>def</span> ignore_until(chars)
+</code>
+<code class=line>    <span class=kw>def</span> pair()
+</code>
+<code class=line>    <span class=kw>def</span> selector()
+</code>
+<code class=line>    <span class=kw>def</span> body()
+</code>
+<code class=line>    <span class=kw>def</span> parse()
+</code>
+</code>
+<code class=line><span class=kw>class</span> TagSelector:
+<code class=line>    <span class=kw>def</span> __init__(tag)
+</code>
+<code class=line>    <span class=kw>def</span> matches(node)
+</code>
+</code>
+<code class=line><span class=kw>class</span> DescendantSelector:
+<code class=line>    <span class=kw>def</span> __init__(ancestor, descendant)
+</code>
+<code class=line>    <span class=kw>def</span> matches(node)
+</code>
+</code>
+<code class=line>FONTS
+</code>
+<code class=line><span class=kw>def</span> get_font(size, weight, style)
+</code>
+<code class=line>DEFAULT_STYLE_SHEET
+</code>
+<code class=line>INHERITED_PROPERTIES
+</code>
+<code class=line><span class=kw>def</span> style(node, rules)
+</code>
+<code class=line><span class=kw>def</span> cascade_priority(rule)
+</code>
+<code class=line>WIDTH, HEIGHT
+</code>
+<code class=line>HSTEP, VSTEP
+</code>
+<code class=line>BLOCK_ELEMENTS
+</code>
+<code class=line><span class=kw>class</span> DocumentLayout:
+<code class=line>    <span class=kw>def</span> __init__(node)
+</code>
+<code class=line>    <span class=kw>def</span> layout()
+</code>
+<code class=line>    <span class=kw>def</span> paint()
+</code>
+</code>
+<code class=line><span class=kw>class</span> BlockLayout:
+<code class=line>    <span class=kw>def</span> __init__(node, parent, previous)
+</code>
+<code class=line>    <span class=kw>def</span> layout_mode()
+</code>
+<code class=line>    <span class=kw>def</span> layout()
+</code>
+<code class=line>    <span class=kw>def</span> recurse(node)
+</code>
+<code class=line>    <span class=kw>def</span> flush()
+</code>
+<code class=line>    <span class=kw>def</span> word(node, word)
+</code>
+<code class=line>    <span class=kw>def</span> paint()
+</code>
+</code>
+<code class=line><span class=kw>class</span> DrawText:
+<code class=line>    <span class=kw>def</span> __init__(x1, y1, text, font, color)
+</code>
+<code class=line>    <span class=kw>def</span> execute(scroll, canvas)
+</code>
+</code>
+<code class=line><span class=kw>class</span> DrawRect:
+<code class=line>    <span class=kw>def</span> __init__(x1, y1, x2, y2, color)
+</code>
+<code class=line>    <span class=kw>def</span> execute(scroll, canvas)
+</code>
+</code>
+<code class=line><span class=kw>def</span> paint_tree(layout_object, display_list)
+</code>
+<code class=line>SCROLL_STEP
+</code>
+<code class=line><span class=kw>class</span> Browser:
+<code class=line>    <span class=kw>def</span> __init__()
+</code>
+<code class=line>    <span class=kw>def</span> draw()
+</code>
+<code class=line>    <span class=kw>def</span> load(url)
+</code>
+<code class=line>    <span class=kw>def</span> scrolldown(e)
+</code>
+</code>
+
+</div>
+<h1 id="exercises">Exercises</h1>
+<p>6-1 <em>Fonts</em>. Implement the <code>font-family</code> property,
+an inheritable property that names which font should be used in an
+element. Make text inside <code>&lt;code&gt;</code> elements use a nice
+monospaced font like <code>Courier</code>. Beware the font cache.</p>
+<p>6-2 <em>Width/height</em>. Add support for the <code>width</code> and
+<code>height</code> properties to block layout. These can either be a
+pixel value, which directly sets the width or height of the layout
+object, or the word <code>auto</code>, in which case the existing layout
+algorithm is used.</p>
+<p>6-3 <em>Class selectors</em>. Any HTML element can have a
+<code>class</code> attribute, whose value is a space-separated list of
+that element’s classes. A CSS class selector, like <code>.main</code>,
+affects all elements with the <code>main</code> class. Implement class
+selectors; they should take precedence over tag selectors. If you’ve
+implemented them correctly, you should see syntax highlighting for the
+code blocks in this book.</p>
+<p>6-4 <em><code>display</code></em>. Right now, the
+<code>layout_mode</code> function relies on a hard-coded list of block
+elements. In a real browser, the <code>display</code> property controls
+this. Implement <code>display</code> with a default value of
+<code>inline</code>, and move the list of block elements to the browser
+style sheet.</p>
+<p>6-5 <em>Shorthand properties</em> CSS “shorthand properties” set
+multiple related CSS properties at the same time; for example,
+<code>font: italic bold 100% Times</code> sets the
+<code>font-style</code>, <code>font-weight</code>,
+<code>font-size</code>, and <code>font-family</code> properties all at
+once. Add shorthand properties to your parser. (If you haven’t done
+Exercise 6-1, just ignore the <code>font-family</code>.)</p>
+<p>6-6 <em>Inline style sheets</em>. The
+<code>&lt;link rel=stylesheet&gt;</code> syntax allows importing an
+external style sheet (meaning one loaded via its own HTTP request).
+There is also a way to provide a style sheet inline, as part of the
+HTML, via the <code>&lt;style&gt;</code> tag—everything up to the
+following <code>&lt;/style&gt;</code> tag is interpreted as a style
+sheet.<span class="note-container"><span class="note">Both inline and
+external stylesheet apply in the order of their appearance in the HTML,
+though it might be easier to first implement inline style sheets
+applying after external ones.</span></span> Inline style sheets are
+useful for creating self-contained example web pages, but more
+importantly are a way that websites can load faster by reducing the
+number of round-trip network requests to the server. Since style sheets
+typically don’t contain left angle brackets, you can implement this
+feature without modifying the HTML parser.</p>
+<p>6-7 <em>Fast descendant selectors</em>. Right now, matching a
+selector like <code>div div div div div</code> can take a long time—it’s
+*O(nd)* in the worst case, where <em>n</em> is the length of the
+selector and <em>d</em> is the depth of the layout tree. Modify the
+descendant-selector matching code to run in *O(n + d)* time. It may help
+to have <code>DescendantSelector</code> store a list of base selectors
+instead of just two.</p>
+<p>6-8 <em>Selector sequences</em>. Sometimes you want to select an
+element by tag <em>and</em> class. You do this by concatenating the
+selectors without anything in between.<span class="note-container"><span
+class="note">Not even whitespace!</span></span> For example,
+<code>span.announce</code> selects elements that match both
+<code>span</code> and <code>.announce</code>. Implement a new
+<code>SelectorSequence</code> class to represent these and modify the
+parser to parse them. Sum priorities.<span class="note-container"><span
+class="note">Priorities for <code>SelectorSequence</code>s are supposed
+to compare the number of ID, class, and tag selectors in lexicographic
+order, but summing the priorities of the selectors in the sequence will
+work fine as long as no one strings more than ten selectors
+together.</span></span></p>
+<p>6-9 <em><code>!important</code></em>. A CSS property–value pair can
+be marked “important” using the <code>!important</code> syntax, like
+this:</p>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode css example"><code class="sourceCode css"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#banner</span> a { <span class="kw">color</span>: <span class="cn">black</span> <span class="at">!important</span><span class="op">;</span> }</span></code></pre></div>
+<p>This gives that property–value pair (but not other pairs in the same
+block!) a higher priority than any other selector (except for other
+<code>!important</code> properties). Parse and implement
+<code>!important</code>, giving any property–value pairs marked this way
+a priority 10 000 higher than normal property–value pairs.</p>
+<p>6-10 <em><code>:has</code> selectors</em>. The <a
+href="https://drafts.csswg.org/selectors-4/#relational"><code>:has</code>
+selector</a> is the inverse of a descendant selector—it styles an
+ancestor according to the presence of a descendant. Implement
+<code>:has</code> selectors. Analyze the asymptotic speed of your
+implementation. There is a clever implementation that is *O(1)*
+amortized per element—can you find it?<span class="note-container"><span
+class="note">In fact, browsers have to do something <a
+href="https://blogs.igalia.com/blee/posts/2022/04/12/how-blink-tests-has-pseudo-class.html">even
+more complex</a> to implement <code>:has</code>
+efficiently.</span></span></p>
+
+
+
+<nav class="links">
+  Chapter 6 of <a href="index.html" title="Table of Contents">Web Browser Engineering</a>.
+  <a rel="prev" title="Previous chapter" href="layout.html">&lt;</a>
+  <a rel="next" title="Next chapter" href="chrome.html">&gt;</a>
+</nav>
+
+<p>Did you find this chapter useful? <button id=feedback-button>Send us feedback!</button></p>
+
+<footer>
+  &copy; 2018&ndash;2023 <a href="https://pavpanchekha.com">Pavel Panchekha</a> &amp; <a href="https://twitter.com/chrishtr">Chris Harrelson</a>
+</footer>
+
+<script type="text/javascript" defer src="feedback.js"></script>
+<script type="text/javascript" defer src="book.js"></script>
+
+</body>
+</html>

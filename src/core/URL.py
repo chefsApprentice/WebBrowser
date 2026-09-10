@@ -1,8 +1,8 @@
 import gzip
 import socket
 import ssl
-from SocketCache import socketCache
-from HtmlTimeCache import HtmlTimeCache
+from src.caching.SocketCache import socketCache
+from src.caching.HtmlTimeCache import HtmlTimeCache
 
 
 # Handles parsing of the URL and handling the TCP request to fetch the data.
@@ -112,6 +112,26 @@ class URL:
                     self.htmlCache.set(self.url, content, maxAge);
 
         return content;
+    
+
+    # Resolves url (passed fro website), checks which path format it is using and returns URL object.
+    def resolve(self, url):
+        # Normal url
+        if "://" in url: return URL(url, self.htmlCache, self.connCache);
+        # Path relative url
+        if not url.startswith("/"):
+            direct, __ = self.path.rsplit("/", 1)
+            while url.startswith("../"):
+                _, url = url.split("/", 1)
+                if "/" in direct:
+                    direct, _ = direct.rsplit("/", 1)
+            url = direct + "/" + url
+        # Scheme relative url
+        if url.startswith("//"):
+            return URL(self.scheme + ":" + url, self.htmlCache, self.connCache)
+        else:
+            return URL(self.scheme + "://" + self.host + ":" + str(self.port) + url, self.htmlCache, self.connCache)
+
     
 
 # Handles reading chunked responses, adn returns the uncompressed full data.

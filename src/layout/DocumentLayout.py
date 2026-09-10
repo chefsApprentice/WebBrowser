@@ -1,4 +1,4 @@
-from BlockLayout import BlockLayout
+from src.layout.BlockLayout import BlockLayout
 
 
 maxWidth, HEIGHT = 3400, 2600
